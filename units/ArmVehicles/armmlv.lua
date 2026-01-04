@@ -1,7 +1,7 @@
 return {
 	armmlv = {
 		activatewhenbuilt = true,
-		builddistance = 96,
+		builddistance = 160,
 		builder = true,
 		buildpic = "ARMMLV.DDS",
 		buildtime = 3520,
@@ -22,7 +22,7 @@ return {
 		idleautoheal = 5,
 		idletime = 1800,
 		leavetracks = false,
-		mass = 1500,
+		mass = 150,
 		maxacc = 0.07135,
 		maxdec = 0.1427,
 		maxslope = 16,
@@ -137,7 +137,7 @@ return {
 				gravityaffected = "true",
 				name = "Seismic charge",
 				noselfdamage = true,
-				range = 220,
+				range = 284,
 				reloadtime = 3,
 				rgbcolor = "0.2 0.6 0.2",
 				tolerance = 3000,

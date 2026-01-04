@@ -2,7 +2,7 @@ return {
 	cordecom = {
 		activatewhenbuilt = true,
 		autoheal = 0,
-		builddistance = 145,
+		builddistance = 209,
 		builder = true,
 		buildpic = "CORDECOM.DDS",
 		buildtime = 27000,

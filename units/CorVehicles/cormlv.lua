@@ -1,7 +1,7 @@
 return {
 	cormlv = {
 		activatewhenbuilt = true,
-		builddistance = 96,
+		builddistance = 160,
 		builder = true,
 		buildpic = "CORMLV.DDS",
 		buildtime = 3640,
@@ -22,7 +22,7 @@ return {
 		idleautoheal = 5,
 		idletime = 1800,
 		leavetracks = true,
-		mass = 1500,
+		mass = 250,
 		maxacc = 0.06681,
 		maxdec = 0.1327,
 		maxslope = 16,
@@ -138,7 +138,7 @@ return {
 				gravityaffected = "true",
 				name = "Seismic charge",
 				noselfdamage = true,
-				range = 220,
+				range = 284,
 				reloadtime = 3,
 				rgbcolor = "0.2 0.6 0.2",
 				tolerance = 3000,
