@@ -10,7 +10,7 @@ return {
 		canmove = true,
 		canrepair = false,
 		canrestore = false,
-		capturespeed = 450,
+		capturespeed = 225,
         collisionvolumeoffsets = "0 0 0",
 		collisionvolumescales = "28 15 28",
 		collisionvolumetype = "box",

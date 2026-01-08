@@ -12,7 +12,9 @@ return {
 		explodeas = "largeExplosionGeneric-phib",
 		footprintx = 3,
 		footprintz = 3,
-		health = 5000,
+		health = 5250,
+		--health = 5000,
+        autoheal = 18,
 		idleautoheal = 5,
 		idletime = 1800,
 		leavetracks = true,
@@ -24,12 +26,14 @@ return {
 		movementclass = "ATANK3",
 		nochasecategory = "VTOL",
 		objectname = "Units/ARMCROC.s3o",
-		script = "Units/ARMCROC.cob",
+		--onoffable = true,
+        script = "Units/ARMCROC.cob",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd-phib",
 		sightdistance = 500,
 		sonardistance = 279,
 		speed = 54,
+        --speed = 72
 		trackoffset = 16,
 		trackstrength = 5,
 		tracktype = "armcroc_tracks",
@@ -115,13 +119,15 @@ return {
 		},
 		weapondefs = {
 			arm_triton = {
-				areaofeffect = 64,
+				areaofeffect = 80,
+				-- areaofeffect = 64,
 				avoidfeature = false,
 				craterareaofeffect = 64,
 				craterboost = 0,
 				cratermult = 0,
 				cylindertargeting = 1,
 				edgeeffectiveness = 0.15,
+				--edgeeffectiveness = 0.15,
 				explosiongenerator = "custom:genericshellexplosion-medium",
 				gravityaffected = "true",
 				impulsefactor = 0.123,
@@ -129,13 +135,16 @@ return {
 				noselfdamage = true,
 				predictboost = 1,
 				range = 480,
-				reloadtime = 1.6,
+				--range = 480,
+				reloadtime = 1.2,
+                --reloadtime = 1.6,
 				soundhit = "xplomed4",
 				soundhitwet = "splsmed",
 				soundstart = "cannon2",
 				turret = true,
 				weapontype = "Cannon",
-				weaponvelocity = 450,
+				weaponvelocity = 475,
+				--weaponvelocity = 450,
 				damage = {
 					default = 225,
 					subs = 100,
@@ -203,3 +212,8 @@ return {
 		},
 	},
 }
+
+
+
+
+

@@ -137,7 +137,7 @@ return {
 				gravityaffected = "true",
 				name = "Seismic charge",
 				noselfdamage = true,
-				range = 284,
+				range = 230,
 				reloadtime = 3,
 				rgbcolor = "0.2 0.6 0.2",
 				tolerance = 3000,
