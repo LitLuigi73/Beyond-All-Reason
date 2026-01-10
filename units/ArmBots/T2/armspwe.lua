@@ -220,7 +220,6 @@ return {
 				  badtargetcategory = "NOTAIR LIGHTAIRSCOUT",
                   def = "SHORTRANGEMISSILE",
 				  onlytargetcategory = "VTOL",
-            
                   },
             },
         },

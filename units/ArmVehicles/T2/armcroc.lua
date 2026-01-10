@@ -14,7 +14,7 @@ return {
 		footprintz = 3,
 		health = 5250,
 		--health = 5000,
-        autoheal = 18,
+        autohealifswimming = 50,
 		idleautoheal = 5,
 		idletime = 1800,
 		leavetracks = true,
@@ -89,6 +89,9 @@ return {
 		sfxtypes = {
 			explosiongenerators = {
 				[1] = "custom:barrelshot-large",
+				[2] = "custom:subbubbles",
+				[3] = "custom:subwake",
+				[4] = "custom:subtorpfire",
 			},
 			pieceexplosiongenerators = {
 				[1] = "deathceg2",
@@ -149,6 +152,7 @@ return {
 					default = 225,
 					subs = 100,
 					vtol = 40,
+                    buildings = 300,
 				},
 			},
 			armcl_missile = {
@@ -197,7 +201,43 @@ return {
 					vtol = 60,
 				},
 			},
+		torpedo = {
+			areaofeffect = 64,
+			avoidfeature = false,
+			avoidfriendly = false,
+			burnblow = true,
+			cegtag = "torpedotrail-tiny",
+			collidefriendly = false,
+			craterareaofeffect = 0,
+			craterboost = 0,
+			cratermult = 0,
+			edgeeffectiveness = 0.15,
+			explosiongenerator = "custom:genericshellexplosion-small-uw",
+			flighttime = 3,
+			impulsefactor = 0.123,
+			model = "torpedo.s3o",
+			name = "Light torpedo launcher",
+			noselfdamage = true,
+			predictboost = 1,
+			range = 500,
+			reloadtime = 4,
+			soundhit = "xplodep1",
+			soundhitvolume = 15,
+			soundstart = "torpedo1",
+			startvelocity = 130,
+			tolerance = 12000,
+			turnrate = 12000,
+			turret = true,
+			waterweapon = true,
+			weaponacceleration = 15,
+			weapontimer = 3.25,
+			weapontype = "TorpedoLauncher",
+			weaponvelocity = 200,
+			damage = {
+				default = 342,
+			},
 		},
+	},
 		weapons = {
 			[1] = {
 				def = "ARM_TRITON",
@@ -209,8 +249,15 @@ return {
 				fastautoretargeting = true,
 				onlytargetcategory = "VTOL",
 			},
+			[3] = {
+				badtargetcategory = "HOVER NOTSHIP",
+				def = "TORPEDO",
+				--maindir = "0 0 1",
+				--maxangledif = 110,
+				onlytargetcategory = "NOTHOVER",
+				},
+			},
 		},
-	},
 }
 
 
