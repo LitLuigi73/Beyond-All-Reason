@@ -128,7 +128,7 @@ return {
 				edgeeffectiveness = 0.15,
 				explosiongenerator = "custom:genericshellexplosion-medium",
 				gravityaffected = "true",
-				impulsefactor = 0.50,
+				impulsefactor = 0.246,
 				-- impulsefactor = 0.123,
 				name = "Medium g2g gauss-cannon",
 				noselfdamage = true,
