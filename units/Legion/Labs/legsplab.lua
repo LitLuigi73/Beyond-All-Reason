@@ -24,7 +24,7 @@ return {
 		sightdistance = 169,
 		sonardistance = 800,
 		terraformspeed = 1000,
-		waterline = 0,
+		waterline = 50,
 		workertime = 300,
 		yardmap = "wwwwww weeeew weeeew weeeew weeeew wwwwww",
 		buildoptions = {
@@ -42,6 +42,8 @@ return {
 			normaltex = "unittextures/leg_normal.dds",
 			subfolder = "Legion/Labs",
 			unitgroup = "builder",
+			restrictions_inclusion = "_noair_",
+			techlevel = 1.5,
 		},
 		featuredefs = {
 			dead = {
@@ -57,13 +59,6 @@ return {
 				metal = 930,
 				object = "Units/legsplab_dead.s3o",
 				reclaimable = true,
-			},
-		},
-		sfxtypes = {
-			pieceexplosiongenerators = {
-				[1] = "deathceg2",
-				[2] = "deathceg3",
-				[3] = "deathceg4",
 			},
 		},
 		sounds = {

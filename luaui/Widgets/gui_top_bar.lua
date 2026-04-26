@@ -7,7 +7,7 @@ function widget:GetInfo()
 		author = "Floris",
 		date = "Feb, 2017",
 		license = "GNU GPL, v2 or later",
-		layer = -999999,
+		layer = -95000,
 		enabled = true,
 		handler = true, --can use widgetHandler:x()
 	}
@@ -2226,8 +2226,25 @@ function widget:Initialize()
 	end
 
 	WG['topbar'].setResourceBarsVisible = function(visible)
+		if showResourceBars == visible then
+			return
+		end
+
 		showResourceBars = visible
 		refreshUi = true
+
+		-- Quick-start/base-build-budget hides bars pregame and restores them at
+		-- game start. Rebuild UI state when showing again so bar/slider geometry
+		-- is recreated from current topbar dimensions.
+		if visible then
+			draggingShareIndicatorValue = {}
+			draggingConversionIndicatorValue = nil
+			init()
+		else
+			resbarHover = nil
+			draggingShareIndicator = nil
+			draggingConversionIndicator = nil
+		end
 	end
 
 	WG['topbar'].getResourceBarsVisible = function()

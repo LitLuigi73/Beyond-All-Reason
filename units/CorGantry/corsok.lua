@@ -79,11 +79,6 @@ return {
 				[2] = "custom:bowsplash-small-hover",
 				[3] = "custom:hover-wake-large",
 			},
-			pieceexplosiongenerators = {
-				[1] = "deathceg2",
-				[2] = "deathceg3",
-				[3] = "deathceg4",
-			},
 		},
 		sounds = {
 			canceldestruct = "cancel2",
@@ -175,6 +170,9 @@ return {
 				weapontimer = 3,
 				weapontype = "TorpedoLauncher",
 				weaponvelocity = 140,
+				customparams = {
+					weapons_role = "secondary",
+				},
 				damage = {
 					default = 225,
 				},

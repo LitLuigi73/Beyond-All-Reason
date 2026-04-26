@@ -24,6 +24,8 @@ local spGetGameFrame = Spring.GetGameFrame
 local spEcho = Spring.Echo
 local spGetUnitTeam = Spring.GetUnitTeam
 local spGetSpectatingState = Spring.GetSpectatingState
+local spGetFeaturePosition = Spring.GetFeaturePosition
+local spIsPosInLos = Spring.IsPosInLos
 
 -- wellity wellity the time has come, and yes, this is design documentation
 -- what can we do with 64 verts per healthbars?
@@ -1211,6 +1213,12 @@ function widget:FeatureCreated(featureID)
 			if health ~= maxhealth then addBarToFeature(featureID, 'featurehealth') end
 		end
 
+		if not fullview then
+			local featureX, featureY, featureZ = spGetFeaturePosition(featureID)
+			if featureX and not spIsPosInLos(featureX, featureY, featureZ, myAllyTeamID) then
+				return
+			end
+		end
 
 		if rezProgress > 0 then
 			addBarToFeature(featureID, 'featureresurrect')
@@ -1238,7 +1246,11 @@ function widget:FeatureDestroyed(featureID)
 	featureBars[featureID] = nil
 end
 
-function widget:DrawWorld()
+function widget:DrawScreenEffects()
+	-- using DrawScreenEffects so healthbars render after deferred lighting,
+	-- distortion, bloom and tonemapping passes — keeps bar colors uncolored
+	-- and unaffected by water/heat distortion. The shader still does world->clip
+	-- via engine cameraViewProj UBO, and depth-test still occludes against terrain.
 	--spEcho(Engine.versionFull )
 	if chobbyInterface then return end
 	if not drawWhenGuiHidden and Spring.IsGUIHidden() then return end

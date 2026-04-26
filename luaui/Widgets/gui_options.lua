@@ -437,6 +437,8 @@ local function clearChatInput()
 	inputText = ''
 	inputTextPosition = 0
 	inputTextInsertActive = false
+	-- Invalidate guishader so it rebuilds with tab blur regions included
+	backgroundGuishader = glDeleteList(backgroundGuishader)
 	applyFilter()
 end
 
@@ -501,7 +503,7 @@ function updateInputDlist()
 		-- background
 		local x2 = math.max(textPosX+lineHeight+floor(usedFont:GetTextWidth(inputText) * inputFontSize), floor(activationArea[1]+((activationArea[3]-activationArea[1])/5)))
 		chatInputArea = { activationArea[1], activationArea[2]+chatlogHeightDiff-distance-inputHeight, x2, activationArea[2]+chatlogHeightDiff-distance }
-		UiElement(chatInputArea[1], chatInputArea[2], chatInputArea[3], chatInputArea[4], 0,0,nil,nil, 0,nil,nil,nil, math.max(0.75, Spring.GetConfigFloat("ui_opacity", 0.7)))
+		UiElement(chatInputArea[1], chatInputArea[2], chatInputArea[3], chatInputArea[4], 0,0,nil,nil, 0,nil,nil,nil, WG.FlowUI.clampedOpacity)
 		if WG['guishader'] then
 			WG['guishader'].InsertRect(activationArea[1], activationArea[2]+chatlogHeightDiff-distance-inputHeight, x2, activationArea[2]+chatlogHeightDiff-distance, 'optionsinput')
 		end
@@ -559,6 +561,13 @@ function getOptionByID(id)
 end
 
 function orderOptions()
+	-- When a filter is active, options are already ordered by relevance with
+	-- context labels inserted by applyFilter(). Skip regrouping to preserve
+	-- that ordering and avoid severing shared references.
+	if inputText and inputText ~= '' and inputMode == '' then
+		return
+	end
+
 	local groupOptions = {}
 	for id, group in pairs(optionGroups) do
 		groupOptions[group.id] = {}
@@ -587,7 +596,9 @@ function orderOptions()
 			end
 		end
 	end
-	options = table.copy(newOptions)
+	-- Use direct assignment instead of table.copy (deep copy) to preserve
+	-- shared references between options and unfilteredOptions.
+	options = newOptions
 	rebuildOptionIdIndex()
 end
 
@@ -626,7 +637,7 @@ function DrawWindow()
 	windowRect = { screenX, screenY - screenHeight, screenX + screenWidth, screenY }
 
 	-- background
-	UiElement(screenX, screenY - screenHeight, screenX + screenWidth, screenY, (showTextInput and inputText ~= '' and inputMode == '') and 1 or 0, 0, 1, (showTextInput and 0 or 1), 1, 1, 1, 1, math.max(0.75, Spring.GetConfigFloat("ui_opacity", 0.7)))
+	UiElement(screenX, screenY - screenHeight, screenX + screenWidth, screenY, (showTextInput and inputText ~= '' and inputMode == '') and 1 or 0, 0, 1, (showTextInput and 0 or 1), 1, 1, 1, 1, WG.FlowUI.clampedOpacity)
 
 	-- title
 	local groupMargin = math.floor(bgpadding * 0.8)
@@ -1121,17 +1132,16 @@ function widget:Update(dt)
 		lastUpdate = sec
 
 		local changes = false
-		for i, option in ipairs(options) do
-			if options[i].widget ~= nil and options[i].type == 'bool' and options[i].value ~= GetWidgetToggleValue(options[i].widget) then
-				options[i].value = GetWidgetToggleValue(options[i].widget)
+		-- Sync widget toggle values in unfilteredOptions (the authoritative list)
+		-- so changes persist across filter apply/clear cycles.
+		for i, option in ipairs(unfilteredOptions) do
+			if option.widget ~= nil and option.type == 'bool' and option.value ~= GetWidgetToggleValue(option.widget) then
+				option.value = GetWidgetToggleValue(option.widget)
 				changes = true
 			end
 		end
 		if changes then
-			if windowList then
-				gl.DeleteList(windowList)
-			end
-			windowList = gl.CreateList(DrawWindow)
+			applyFilter()
 		end
 		if getOptionByID('sndvolmaster') then
 			options[getOptionByID('sndvolmaster')].value = tonumber(Spring.GetConfigInt("snd_volmaster", 40) or 40)    -- update value because other widgets can adjust this too
@@ -1811,22 +1821,23 @@ function mouseEvent(mx, my, button, release)
 					if showSelectOptions == nil then
 						if optionButtons then
 							for i, o in pairs(optionButtons) do
-
-								if options[i].type == 'bool' and math_isInRect(mx, my, o[1], o[2], o[3], o[4]) then
-									applyOptionValue(i, not options[i].value)
-									if playSounds then
-										if options[i].value then
-											Spring.PlaySoundFile(sounds.toggleOnClick, 0.75, 'ui')
-										else
-											Spring.PlaySoundFile(sounds.toggleOffClick, 0.75, 'ui')
+								if options[i] then
+									if options[i].type == 'bool' and math_isInRect(mx, my, o[1], o[2], o[3], o[4]) then
+										applyOptionValue(i, not options[i].value)
+										if playSounds then
+											if options[i] and options[i].value then
+												Spring.PlaySoundFile(sounds.toggleOnClick, 0.75, 'ui')
+											else
+												Spring.PlaySoundFile(sounds.toggleOffClick, 0.75, 'ui')
+											end
 										end
+									elseif options[i].type == 'slider' and math_isInRect(mx, my, o[1], o[2], o[3], o[4]) then
+
+									elseif options[i].type == 'select' and math_isInRect(mx, my, o[1], o[2], o[3], o[4]) then
+
+									elseif optionHover[i] and options[i].onclick ~= nil and math_isInRect(mx, my, optionHover[i][1], optionHover[i][2], optionHover[i][3], optionHover[i][4]) then
+										options[i].onclick(i)
 									end
-								elseif options[i].type == 'slider' and math_isInRect(mx, my, o[1], o[2], o[3], o[4]) then
-
-								elseif options[i].type == 'select' and math_isInRect(mx, my, o[1], o[2], o[3], o[4]) then
-
-								elseif optionHover[i] and options[i].onclick ~= nil and math_isInRect(mx, my, optionHover[i][1], optionHover[i][2], optionHover[i][3], optionHover[i][4]) then
-									options[i].onclick(i)
 								end
 							end
 						end
@@ -1835,7 +1846,9 @@ function mouseEvent(mx, my, button, release)
 				else	-- press
 					if not showSelectOptions then
 						for i, o in pairs(optionButtons) do
-							if options[i].type == 'slider' and (math_isInRect(mx, my, o.sliderXpos[1], o[2], o.sliderXpos[2], o[4]) or math_isInRect(mx, my, o[1], o[2], o[3], o[4])) then
+							if not options[i] then
+								-- skip: options table was rebuilt and this index is stale
+							elseif options[i].type == 'slider' and (math_isInRect(mx, my, o.sliderXpos[1], o[2], o.sliderXpos[2], o[4]) or math_isInRect(mx, my, o[1], o[2], o[3], o[4])) then
 								draggingSlider = i
 								draggingSliderPreDragValue = options[draggingSlider].value
 								local newValue = getSliderValue(draggingSlider, mx)
@@ -1967,15 +1980,16 @@ function applyOptionValue(i, newValue, skipRedrawWindow, force)
 		end
 	end
 
-	if options[i].onchange then
+	if options[i] and options[i].onchange then
 		options[i].onchange(i, options[i].value, force)
 	end
 
 	if skipRedrawWindow == nil then
-		if windowList then
-			gl.DeleteList(windowList)
-		end
-		windowList = gl.CreateList(DrawWindow)
+		-- Use applyFilter() to rebuild the window — this preserves the filter
+		-- state and keeps options/unfilteredOptions references in sync.
+		-- Direct DrawWindow calls would run orderOptions() which deep-copies
+		-- the options table, severing links to unfilteredOptions.
+		applyFilter()
 	end
 end
 
@@ -2139,10 +2153,15 @@ function applyFilter()
 
 				local score = 0
 
-				-- Tier 1: Exact substring match in name (score 300+)
+				-- Tier 1: Exact substring match in name or id (score 300+)
 				local exactPos = string.find(lowerName, lowerInput, nil, true)
 				if exactPos then
 					score = 300 + math.max(0, 50 - exactPos) + math.max(0, 20 - #lowerName)
+				else
+					local idPos = string.find(lowerId, lowerInput, nil, true)
+					if idPos then
+						score = 300 + math.max(0, 50 - idPos) + math.max(0, 20 - #lowerId)
+					end
 				end
 
 				-- Tier 2: Multi-word AND matching (score 100-299)
@@ -2169,14 +2188,16 @@ function applyFilter()
 					end
 				end
 
-				-- Tier 3: Fuzzy subsequence matching on name only (score 1-99)
+				-- Tier 3: Fuzzy subsequence matching on name or id (score 1-99)
 				-- Requires at least 3 characters to avoid too many false positives
 				if score == 0 and #queryNoSpaces >= 3 then
 					local nameScore = fuzzyScore(queryNoSpaces, lowerName)
+					local idScore = fuzzyScore(queryNoSpaces, lowerId)
+					local bestScore = math.max(nameScore, idScore)
 					-- Require a minimum quality: score must be at least 2 per query char
 					local minThreshold = #queryNoSpaces * 2
-					if nameScore >= minThreshold then
-						score = math.min(99, nameScore)
+					if bestScore >= minThreshold then
+						score = math.min(99, bestScore)
 					end
 				end
 
@@ -2242,6 +2263,7 @@ function init()
 			distortioneffects = false,
 			snow = false,
 			particles = 10000,
+			nanoparticletype = 0,
 			guishader = 0,
 			decalsgl4 = 0,
 			decals = 0,
@@ -2265,6 +2287,7 @@ function init()
 			distortioneffects = true,
 			snow = false,
 			particles = 15000,
+			nanoparticletype = 2,
 			guishader = 0,
 			decalsgl4 = 1,
 			decals = 1,
@@ -2288,6 +2311,7 @@ function init()
 			distortioneffects = true,
 		 	snow = true,
 		 	particles = 20000,
+			nanoparticletype = 2,
 			decalsgl4 = 1,
 		 	decals = 2,
 			shadowslider = 4,
@@ -2310,6 +2334,7 @@ function init()
 			distortioneffects = true,
 			snow = true,
 			particles = 30000,
+			nanoparticletype = 2,
 			decalsgl4 = 1,
 			decals = 3,
 			shadowslider = 5,
@@ -2332,6 +2357,7 @@ function init()
 			distortioneffects = true,
 			snow = true,
 			particles = 40000,
+			nanoparticletype = 2,
 			decalsgl4 = 1,
 			decals = 4,
 			shadowslider = 6,
@@ -2757,7 +2783,7 @@ function init()
 		},
 
 		{ id = "ssao", group = "gfx", category = types.basic, widget = "SSAO", name = Spring.I18N('ui.settings.option.ssao'), type = "bool", value = GetWidgetToggleValue("SSAO"), description = Spring.I18N('ui.settings.option.ssao_descr') },
-		{ id = "ssao_strength", group = "gfx", category = types.dev, name = widgetOptionColor .. "   " .. Spring.I18N('ui.settings.option.ssao_strength'), type = "slider", min = 5, max = 11, step = 1, value = 8, description = '',
+		{ id = "ssao_strength", group = "gfx", category = types.dev, name = widgetOptionColor .. "   " .. Spring.I18N('ui.settings.option.ssao_strength'), type = "slider", min = 5, max = 15, step = 1, value = 10, description = '',
 		  onload = function(i)
 			  loadWidgetData("SSAO", "ssao_strength", { 'strength' })
 		  end,
@@ -2777,7 +2803,7 @@ function init()
 		},
 
 		{ id = "bloomdeferred", group = "gfx", category = types.basic, widget = "Bloom Shader Deferred", name = Spring.I18N('ui.settings.option.bloomdeferred'), type = "bool", value = GetWidgetToggleValue("Bloom Shader Deferred"), description = Spring.I18N('ui.settings.option.bloomdeferred_descr') },
-		{ id = "bloomdeferredbrightness", group = "gfx", category = types.advanced, name = widgetOptionColor .. "   " .. Spring.I18N('ui.settings.option.bloomdeferredbrightness'), type = "slider", min = 0.4, max = 1.4, step = 0.05, value = 0.9, description = '',
+		{ id = "bloomdeferredbrightness", group = "gfx", category = types.advanced, name = widgetOptionColor .. "   " .. Spring.I18N('ui.settings.option.bloomdeferredbrightness'), type = "slider", min = 0.5, max = 2.0, step = 0.05, value = 1.0, description = '',
 		  onload = function(i)
 			  loadWidgetData("Bloom Shader Deferred", "bloomdeferredbrightness", { 'glowAmplifier' })
 		  end,
@@ -3005,7 +3031,39 @@ function init()
 		  end,
 		  onchange = function(i, value)
 			  Spring.SetConfigInt("MaxParticles", value)
-			  Spring.SetConfigInt("MaxNanoParticles", math.floor(value*0.34))
+			  -- Keep the engine nano-spray budget in sync when the gadget is
+			  -- handing particles back to the engine (NanoParticleMode 0).
+			  if Spring.GetConfigInt("NanoParticleMode", 2) == 0 then
+				  Spring.SetConfigInt("MaxNanoParticles", math.floor(value * 0.34))
+				if Spring.GetConfigInt("NanoParticleMode", 2) == 0 then
+					Spring.SetConfigInt("MaxNanoParticles", math.floor(Spring.GetConfigInt("MaxParticles", 15000) * 0.34))
+				else
+					Spring.SetConfigInt("MaxNanoParticles", 0)
+				end
+			  end
+		  end,
+		},
+
+		{ id = "nanoparticletype", group = "gfx", category = types.basic,
+		  name = widgetOptionColor .. "   " .. Spring.I18N('ui.settings.option.nanoparticletype'),
+		  type = "select",
+		  options = {
+			  Spring.I18N('ui.settings.option.nanoparticletype_simple'),
+			  Spring.I18N('ui.settings.option.nanoparticletype_smart'),
+			  Spring.I18N('ui.settings.option.nanoparticletype_shapes'),
+		  },
+		  value = (tonumber(Spring.GetConfigInt("NanoParticleMode", 2)) or 2) + 1,
+		  description = Spring.I18N('ui.settings.option.nanoparticletype_descr'),
+		  onload = function(i)
+		  end,
+		  onchange = function(i, value)
+			  local mode = value - 1
+			  Spring.SetConfigInt("NanoParticleMode", mode)
+			  if mode == 0 then
+				  Spring.SetConfigInt("MaxNanoParticles", math.floor(Spring.GetConfigInt("MaxParticles", 15000) * 0.34))
+			  else
+				  Spring.SetConfigInt("MaxNanoParticles", 0)
+			  end
 		  end,
 		},
 
@@ -3879,6 +3937,18 @@ function init()
 		-- 	  end
 		--   end,
 		-- },
+		{ id = "pip_engine_fallback_threshold", group = "ui", category = types.advanced, name = widgetOptionColor .. "      " .. Spring.I18N('ui.settings.option.pip_engine_fallback_threshold'), type = "slider", min = 1500, max = 5000, step = 100, value = 4000, description = Spring.I18N('ui.settings.option.pip_engine_fallback_threshold_descr'),
+		  onload = function(i)
+			  if WG['minimap'] and WG['minimap'].getEngineMinimapFallbackThreshold then
+				  options[getOptionByID('pip_engine_fallback_threshold')].value = WG['minimap'].getEngineMinimapFallbackThreshold()
+			  end
+		  end,
+		  onchange = function(i, value)
+			  if WG['minimap'] and WG['minimap'].setEngineMinimapFallbackThreshold then
+				  WG['minimap'].setEngineMinimapFallbackThreshold(value)
+			  end
+		  end,
+		},
 
 
 		{ id = "pip", group = "ui", category = types.advanced, widget = "Picture-in-Picture", name = Spring.I18N('ui.settings.option.pip'), type = "bool", value = GetWidgetToggleValue("Picture-in-Picture"), description = Spring.I18N('ui.settings.option.pip_descr') },
@@ -7000,12 +7070,13 @@ function init()
 		applyFilter()
 	end
 
-	-- count num options in each group
+	-- count num options in each group (always use unfilteredOptions so counts
+	-- are correct even when a search filter is active)
 	local groups = {}
 	for id, group in pairs(optionGroups) do
 		groups[group.id] = id
 	end
-	for i, option in pairs(options) do
+	for i, option in pairs(unfilteredOptions) do
 		if groups[option.group] then
 			optionGroups[groups[option.group]].numOptions = optionGroups[groups[option.group]].numOptions + 1
 		end
