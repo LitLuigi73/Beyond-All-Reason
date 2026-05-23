@@ -44,7 +44,12 @@ return {
 		turninplacespeedlimit = 1.4388,
 		turnrate = 1581.25,
 		upright = true,
+		-- workertime is buildpower
 		workertime = 50,
+		--buildable beholder
+		buildoptions = {
+		[1] = "armeyes",
+		},
 		customparams = {
 			model_author = "FireStorm",
 			normaltex = "unittextures/Arm_normal.dds",

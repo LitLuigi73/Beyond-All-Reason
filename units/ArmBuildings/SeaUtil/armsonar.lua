@@ -6,6 +6,8 @@ return {
 		buildtime = 910,
 		canattack = false,
 		canrepeat = false,
+		-- cloak
+		cloakcost = 10,
 		collisionvolumeoffsets = "0 0 0",
 		collisionvolumescales = "28 41 28",
 		collisionvolumetype = "CylY",
@@ -15,10 +17,14 @@ return {
 		footprintx = 2,
 		footprintz = 2,
 		health = 56,
+		-- cloak default?
+		initcloaked = true,
 		maxacc = 0,
 		maxdec = 0,
 		maxslope = 10,
 		metalcost = 20,
+		-- mincloak
+		mincloakdistance = 36,
 		minwaterdepth = 10,
 		objectname = "Units/ARMSONAR.s3o",
 		onoffable = false,
@@ -26,6 +32,8 @@ return {
 		seismicsignature = 0,
 		selfdestructas = "smallBuildingExplosionGenericSelfd-uw",
 		sightdistance = 515,
+		-- stealth
+		stealth = true,
 		sonardistance = 1200,
 		yardmap = "oooo",
 		customparams = {

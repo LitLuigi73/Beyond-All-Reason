@@ -83,6 +83,9 @@ return {
 			[42] = "armfrt",
 			[43] = "armtl",
 			[44] = "armuwgeo",
+			--T1 Sonar Station
+			[45] = "armsonar",
+
 		},
 		customparams = {
 			model_author = "Beherith",
