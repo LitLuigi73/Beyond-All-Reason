@@ -50,6 +50,10 @@ return {
 			[5] = "cordrag",
 			[6] = "coreyes",
 			[7] = "corjamt",
+			-- my additonal units 
+			-- v
+			[8] = "corcrash",
+			[9] = "cormlv",
 		},
 		customparams = {
 			fall_damage_multiplier = 0,
@@ -110,6 +114,7 @@ return {
 				predictboost = 0.5,
 				proximitypriority = -1,
 				range = 300,
+				-- range = 310,
 				reloadtime = 0.5,
 				rgbcolor = "0.85,0.3,0.2",
 				soundhit = "xplosml5",
