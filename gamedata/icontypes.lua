@@ -1743,6 +1743,10 @@ local icontypes = {
 		bitmap = "icons/armrattet4.png",
 		size = 3.09749985
 	},
+	corves = {
+		bitmap = "icons/armrattet4.png",
+		size = 3.09749985
+	},
 	corgplat = {
 		bitmap = "icons/defence_0_0.8.png",
 		size = 0.83999997
