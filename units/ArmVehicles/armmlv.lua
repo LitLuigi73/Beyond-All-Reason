@@ -1,7 +1,8 @@
 return {
 	armmlv = {
 		activatewhenbuilt = true,
-		builddistance = 160,
+		--- builddistance = 160,
+		builddistance = 200,
 		builder = true,
 		buildpic = "ARMMLV.DDS",
 		buildtime = 3520,
@@ -23,7 +24,8 @@ return {
 		leavetracks = false,
 		mass = 150,
 		maxacc = 0.07135,
-		maxdec = 0.1427,
+		--- maxdec = 0.1427,
+		maxdec = 0.2854,
 		maxslope = 16,
 		maxwaterdepth = 0,
 		metalcost = 57,

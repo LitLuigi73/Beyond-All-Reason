@@ -1,7 +1,8 @@
 return {
 	cormlv = {
 		activatewhenbuilt = true,
-		builddistance = 160,
+		--- builddistance = 160,
+		builddistance = 200,
 		builder = true,
 		buildpic = "CORMLV.DDS",
 		buildtime = 3640,
@@ -23,7 +24,8 @@ return {
 		leavetracks = true,
 		mass = 300,
 		maxacc = 0.06681,
-		maxdec = 0.1327,
+		--- maxdec = 0.1327,
+		maxdec = 0.2654,
 		maxslope = 16,
 		maxwaterdepth = 0,
 		metalcost = 65,
