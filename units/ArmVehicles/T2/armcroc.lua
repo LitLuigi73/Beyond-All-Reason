@@ -114,7 +114,6 @@ return {
 		weapondefs = {
 			arm_triton = {
 				areaofeffect = 80,
-				-- areaofeffect = 64,
 				avoidfeature = false,
 				craterareaofeffect = 64,
 				craterboost = 0,
@@ -123,14 +122,12 @@ return {
 				edgeeffectiveness = 0.15,
 				explosiongenerator = "custom:genericshellexplosion-medium",
 				gravityaffected = "true",
-				impulsefactor = 0.246,
-				-- impulsefactor = 0.123,
+				impulsefactor = 0.123,
 				name = "Medium g2g gauss-cannon",
 				noselfdamage = true,
 				predictboost = 1,
 				range = 480,
 				reloadtime = 1.6,
-                --reloadtime = 1.6,
 				soundhit = "xplomed4",
 				soundhitwet = "splsmed",
 				soundstart = "cannon2",
@@ -207,8 +204,3 @@ return {
             },
 	},
 }
-
-
-
-
-
