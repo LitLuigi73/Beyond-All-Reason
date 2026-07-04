@@ -83,9 +83,6 @@ return {
 		sfxtypes = {
 			explosiongenerators = {
 				[1] = "custom:barrelshot-large",
-				[2] = "custom:subbubbles",
-				[3] = "custom:subwake",
-				[4] = "custom:subtorpfire",
 			},
 		},
 		sounds = {
