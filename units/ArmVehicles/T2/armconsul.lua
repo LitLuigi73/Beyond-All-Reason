@@ -1,6 +1,6 @@
 return {
 	armconsul = {
-		builddistance = 200,
+		builddistance = 136,
 		builder = true,
 		buildpic = "ARMCONSUL.DDS",
 		buildtime = 8500,

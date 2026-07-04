@@ -1,6 +1,6 @@
 return {
 	corfast = {
-		builddistance = 200,
+		builddistance = 136,
 		builder = true,
 		buildpic = "CORFAST.DDS",
 		buildtime = 8000,

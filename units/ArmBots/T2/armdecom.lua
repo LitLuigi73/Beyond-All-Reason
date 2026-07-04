@@ -2,7 +2,7 @@ return {
 	armdecom = {
 		activatewhenbuilt = true,
 		autoheal = 0,
-		builddistance = 209,
+		builddistance = 185,
 		builder = true,
 		buildpic = "ARMDECOM.DDS",
 		buildtime = 30000,
