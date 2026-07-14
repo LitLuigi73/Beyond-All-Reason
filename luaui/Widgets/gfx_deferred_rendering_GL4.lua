@@ -1186,6 +1186,7 @@ function widget:Shutdown()
 	widgetHandler:DeregisterGlobal('EnvLightningPointLight')
 	widgetHandler:DeregisterGlobal('EnvNanoBallisticLightSpawn')
 	widgetHandler:DeregisterGlobal('EnvNanoBallisticLightCorrect')
+	widgetHandler:DeregisterGlobal('EnvNanoBallisticLightFade')
 	widgetHandler:DeregisterGlobal('EnvNanoBallisticLightRemove')
 
 	deferredLightShader:Delete()
@@ -1555,6 +1556,9 @@ local sec = 1
 function widget:Update(dt)
 	if autoupdate then checkConfigUpdates() end
 	local tus = spGetTimerMicros()
+	if predictivePointLightVBO.dirty then
+		uploadAllElements(predictivePointLightVBO)
+	end
 
 	-- update/handle Cursor Lights!
 	if WG['allycursors'] and WG['allycursors'].getLights() then
@@ -1932,7 +1936,25 @@ function widget:Initialize()
 			instData[instanceIndex + spawnFramePos] = f
 			predictivePointLightVBO.dirty = true
 		end
-		uploadAllElements(predictivePointLightVBO)
+		return true
+	end
+	WG['lightsgl4'].EnvNanoBallisticLightFade = function(instanceID, frame, fadeFrames)
+		local f = frame or gameFrame
+		local instanceIndex = predictivePointLightVBO.instanceIDtoIndex[instanceID]
+		if not instanceIndex then return false end
+		local ff = mathFloor(fadeFrames or 1)
+		if ff < 1 then ff = 1 end
+		instanceIndex = (instanceIndex - 1) * predictivePointLightVBO.instanceStep
+		local instData = predictivePointLightVBO.instanceData
+		instData[instanceIndex + spawnFramePos] = f
+		instData[instanceIndex + 18] = ff
+		instData[instanceIndex + 19] = 0
+		local deathtime = math_ceil(f + ff)
+		if lightRemoveQueue[deathtime] == nil then
+			lightRemoveQueue[deathtime] = {}
+		end
+		lightRemoveQueue[deathtime][instanceID] = predictivePointLightVBO
+		predictivePointLightVBO.dirty = true
 		return true
 	end
 	WG['lightsgl4'].EnvNanoBallisticLightRemove = function(instanceID)
@@ -1943,6 +1965,7 @@ function widget:Initialize()
 	end
 	widgetHandler:RegisterGlobal('EnvNanoBallisticLightSpawn', WG['lightsgl4'].EnvNanoBallisticLightSpawn)
 	widgetHandler:RegisterGlobal('EnvNanoBallisticLightCorrect', WG['lightsgl4'].EnvNanoBallisticLightCorrect)
+	widgetHandler:RegisterGlobal('EnvNanoBallisticLightFade', WG['lightsgl4'].EnvNanoBallisticLightFade)
 	widgetHandler:RegisterGlobal('EnvNanoBallisticLightRemove', WG['lightsgl4'].EnvNanoBallisticLightRemove)
 end
 

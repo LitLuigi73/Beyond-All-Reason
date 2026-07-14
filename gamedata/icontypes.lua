@@ -3694,6 +3694,26 @@ local icontypes = {
 		bitmap = "icons/raptor_tentacle2.png",
 		size = 5
 	},
+	raptor_turret_acid_t4_v2 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5
+	},
+	raptor_turret_brood_t2_v1 = {
+		bitmap = "icons/raptor_tentacle.png",
+		size = 2
+	},
+	raptor_turret_brood_t3_v1 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 3
+	},
+	raptor_turret_brood_t4_v1 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5
+	},
+	raptor_turret_brood_t4_v2 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5
+	},
 	raptor_turret_antiair_t2_v1 = {
 		bitmap = "icons/raptor_tentacle.png",
 		size = 2
@@ -3726,6 +3746,10 @@ local icontypes = {
 		bitmap = "icons/raptor_tentacle2.png",
 		size = 5
 	},
+	raptor_turret_basic_t4_v2 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5
+	},
 	raptor_turret_emp_t2_v1 = {
 		bitmap = "icons/raptor_tentacle.png",
 		size = 2
@@ -3735,6 +3759,10 @@ local icontypes = {
 		size = 3
 	},
 	raptor_turret_emp_t4_v1 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5
+	},
+	raptor_turret_emp_t4_v2 = {
 		bitmap = "icons/raptor_tentacle2.png",
 		size = 5
 	},

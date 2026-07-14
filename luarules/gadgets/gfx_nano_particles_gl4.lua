@@ -53,6 +53,7 @@ local spGetUnitPosition          = Spring.GetUnitPosition
 local spGetUnitRadius            = Spring.GetUnitRadius
 local spGetUnitDefID             = Spring.GetUnitDefID
 local spGetUnitIsBeingBuilt      = Spring.GetUnitIsBeingBuilt
+local spGetUnitIsBuilding        = Spring.GetUnitIsBuilding
 local spGetFeaturePosition       = Spring.GetFeaturePosition
 local spGetFeatureRadius         = Spring.GetFeatureRadius
 local spGetFeatureHealth         = Spring.GetFeatureHealth
@@ -144,6 +145,10 @@ local RECLAIM_UNIT_JITTER_SCALE = 0.6
 -- spray here for BOTH legs: 1.0 = current BAR behaviour, 0.5 = half as many
 -- resurrect particles on both outbound and inbound legs
 local NanoParticleResurrectExtraRate = 0.5
+-- During the metal-refill phase of resurrect, GetUnitCurrentBuildPower can
+-- report 0 even while work is progressing. Use a conservative synthetic
+-- buildpower so this phase remains visibly active.
+local RESURRECT_REFILL_FALLBACK_BP = 2
 
 local function takeScaledEmitCount(info, accumKey, emits, scale)
 	if emits <= 0 or not scale or scale <= 0 then return 0 end
@@ -291,8 +296,8 @@ local STATIONARY_SKIP_AFTER      = 4
 -- is cached for OFFSCREEN_VIS_CACHE_FRAMES (camera moves slowly vs emit rate).
 -- Keep-fraction scales with pool saturation: MAX at/below SAT_PIVOT, ramping
 -- linearly to MIN at full saturation.
-local OFFSCREEN_EMIT_KEEP_MAX       = 0.4
-local OFFSCREEN_EMIT_KEEP_MIN       = 0.20
+local OFFSCREEN_EMIT_KEEP_MAX       = 0.45
+local OFFSCREEN_EMIT_KEEP_MIN       = 0.25
 local OFFSCREEN_EMIT_KEEP_SAT_PIVOT = 0.25
 local OFFSCREEN_EMIT_KEEP_BAND_INV  = 1.0 / (1.0 - OFFSCREEN_EMIT_KEEP_SAT_PIVOT)
 local OFFSCREEN_VIS_CACHE_FRAMES = 6
@@ -300,7 +305,7 @@ local OFFSCREEN_VIS_CACHE_FRAMES = 6
 -- DISTANT_EMIT_NEAR_RANGE down to DISTANT_EMIT_KEEP at DISTANT_EMIT_RANGE.
 -- Composes with the offscreen gate. Two squared-distance compares + lerp per
 -- emission; camera position sampled once per scan frame.
-local DISTANT_EMIT_KEEP          = 0.25
+local DISTANT_EMIT_KEEP          = 0.35
 local DISTANT_EMIT_NEAR_RANGE    = 2500    -- elmos: full emission inside this
 local DISTANT_EMIT_RANGE         = 9000    -- elmos: floor reached at this
 -- Precomputed at file load (DISTANT_EMIT_* are constants).
@@ -1397,6 +1402,14 @@ local piecePosEpoch = 0
 -- by GetUnitWorkerTask (so feature IDs naturally don't collide with units).
 local emitTargetPosCache = {}
 
+-- Reverse lookup for factory-assisted builds: when a mobile builder assists a
+-- factory, GetUnitWorkerTask typically resolves to the buildee unit. For nano
+-- visuals we want those particles to keep converging on the factory pad, not
+-- start chasing the finished unit as it rolls out. Cache one scan-frame worth
+-- of buildee -> factory anchor resolution so assist groups share the lookup.
+local factoryBuildTargetCache = {}
+local recentFactoryBuildTargetCache = {}
+
 -- Reclaim/homing particles: in-flight inverse particles (those travelling back
 -- toward a builder) re-aim each frame to follow the builder's CURRENT piece
 -- position. Particle position formula is `pos = spawn + vel * (frame - spawnFrame)`,
@@ -1413,7 +1426,7 @@ local HOMING_MAX_PER_BUILDER = 96   -- safety cap; oldest entries drop off
 local homingFwdByTarget = {}
 local targetPosCache    = {}    -- unitID -> [epoch, x, y, z]
 local targetIncompleteCache = {} -- unitID -> [epoch, isBeingBuilt]
-local HOMING_FWD_MAX_PER_TARGET = 192   -- safety cap per repaired/captured unit
+local HOMING_FWD_MAX_PER_TARGET = 384   -- safety cap per repaired/captured unit
 
 -- Reclaim-completion burst tracking. While a tracked unit is being reclaimed
 -- by one or more of our builders, we record the builder set so that on
@@ -1438,6 +1451,49 @@ local reclaimTargetBuildProgress = {}
 -- also fade so trailing spray dissolves cleanly).
 local fadeFwdByTarget = {}
 local FADE_FWD_MAX_PER_TARGET = HOMING_FWD_MAX_PER_TARGET
+
+local function getFactoryBuildAnchor(targetUnitID)
+	local cached = factoryBuildTargetCache[targetUnitID]
+	if cached and cached[1] == piecePosEpoch then
+		if cached[2] then
+			return cached[2], cached[3], cached[4], cached[5], cached[6]
+		end
+		return nil
+	end
+
+	local list = trackedBuildersList
+	for i = 1, #list do
+		local factoryID = list[i]
+		local finfo = builderCache[factoryID]
+		local isFactory = finfo and finfo.isFactory
+		if isFactory == nil then
+			local factoryDefID = spGetUnitDefID(factoryID)
+			isFactory = factoryDefID and UnitDefs[factoryDefID] and UnitDefs[factoryDefID].isFactory or false
+		end
+		if isFactory and spGetUnitIsBuilding(factoryID) == targetUnitID then
+			local _, _, _, mx, my, mz = spGetUnitPosition(factoryID, true)
+			if mx then
+				local radius = spGetUnitRadius(factoryID) or 0
+				factoryBuildTargetCache[targetUnitID] = { piecePosEpoch, factoryID, mx, my, mz, radius }
+				return factoryID, mx, my, mz, radius
+			end
+			break
+		end
+	end
+
+	local recent = recentFactoryBuildTargetCache[targetUnitID]
+	if recent then
+		local recentFrame = recent[1]
+		if recentFrame and (Spring.GetGameFrame() - recentFrame) < HOMING_SKIP_GRACE_FRAMES then
+			factoryBuildTargetCache[targetUnitID] = { piecePosEpoch, recent[2], recent[3], recent[4], recent[5], recent[6] }
+			return recent[2], recent[3], recent[4], recent[5], recent[6]
+		end
+		recentFactoryBuildTargetCache[targetUnitID] = nil
+	end
+
+	factoryBuildTargetCache[targetUnitID] = { piecePosEpoch, false }
+	return nil
+end
 
 local function getBuilderInfo(builderID)
 	local cached = builderCache[builderID]
@@ -2094,27 +2150,43 @@ local function resolveTarget(info, cmdID, targetID)
 			isReclaim    = isReclaim,
 			isResurrect  = isResurrect,
 		}
+		if isUnit and (not info.isFactory) and spGetUnitIsBeingBuilt(resolvedID) then
+			local factoryID, fx, fy, fz, factoryRadius = getFactoryBuildAnchor(resolvedID)
+			if factoryID and fx then
+				meta.assistFactoryID = factoryID
+				meta.anchorX = fx
+				meta.anchorY = fy
+				meta.anchorZ = fz
+				meta.jitterRadius = (factoryRadius and factoryRadius > 0) and (factoryRadius * factor) or nil
+				meta.targetRadius = factoryRadius or 0
+				meta.effectiveBD = info.buildDistance and (info.buildDistance + (factoryRadius or 0)) or nil
+			end
+		end
 		info.targetMeta = meta
 	end
 
 	local px, py, pz
-	local cached = emitTargetPosCache[meta.targetID]
-	if cached and cached[1] == piecePosEpoch then
-		px, py, pz = cached[2], cached[3], cached[4]
+	if meta.assistFactoryID then
+		px, py, pz = meta.anchorX, meta.anchorY, meta.anchorZ
 	else
-		if meta.isFeature then
-			px, py, pz = spGetFeaturePosition(meta.resolvedID)
+		local cached = emitTargetPosCache[meta.targetID]
+		if cached and cached[1] == piecePosEpoch then
+			px, py, pz = cached[2], cached[3], cached[4]
 		else
-			-- spGetUnitPosition(uid, true) returns 6 values: base + mid. We want mid.
-			local _, _, _, mx, my, mz = spGetUnitPosition(meta.resolvedID, true)
-			px, py, pz = mx, my, mz
-		end
-		if px then
-			if cached then
-				cached[1] = piecePosEpoch
-				cached[2] = px; cached[3] = py; cached[4] = pz
+			if meta.isFeature then
+				px, py, pz = spGetFeaturePosition(meta.resolvedID)
 			else
-				emitTargetPosCache[meta.targetID] = { piecePosEpoch, px, py, pz }
+				-- spGetUnitPosition(uid, true) returns 6 values: base + mid. We want mid.
+				local _, _, _, mx, my, mz = spGetUnitPosition(meta.resolvedID, true)
+				px, py, pz = mx, my, mz
+			end
+			if px then
+				if cached then
+					cached[1] = piecePosEpoch
+					cached[2] = px; cached[3] = py; cached[4] = pz
+				else
+					emitTargetPosCache[meta.targetID] = { piecePosEpoch, px, py, pz }
+				end
 			end
 		end
 	end
@@ -2134,7 +2206,7 @@ local function resolveTarget(info, cmdID, targetID)
 	else
 		inverse = false
 	end
-	return px, py, pz, inverse, meta.jitterRadius, isResurrect, (not meta.isFeature) and meta.resolvedID or nil
+	return px, py, pz, inverse, meta.jitterRadius, isResurrect, (not meta.isFeature) and (not meta.assistFactoryID) and meta.resolvedID or nil
 end
 
 --------------------------------------------------------------------------------
@@ -2302,6 +2374,13 @@ end
 -- HP, but the implementation lives further down with the other death handlers.
 local fadeOutHomingFwd
 
+local function fadeNanoDeferredLight(pid, frame, fadeFrames)
+	local nl = deathBuckets.__nanoLight
+	if not (nl and nl.enabled and nl.fadeReady and nl.active and nl.active[pid]) then return end
+	nl.active[pid] = frame
+	Script.LuaUI.EnvNanoBallisticLightFade("NANOP_" .. pid, frame, fadeFrames)
+end
+
 local targetPosEpoch = 0
 
 local function applyForwardHoming(frame, dirtyMin, dirtyMax)
@@ -2328,6 +2407,7 @@ local function applyForwardHoming(frame, dirtyMin, dirtyMax)
 		local s0 = slot - 1
 		if s0 < dirtyMin then dirtyMin = s0 end
 		if s0 + 1 > dirtyMax then dirtyMax = s0 + 1 end
+		fadeNanoDeferredLight(p.id, frame, fadeFrames)
 		return true
 	end
 
@@ -2609,7 +2689,7 @@ local function applyGroundClamp(frame, dirtyMin, dirtyMax)
 			local rem = entry.death - frame
 			if rem > 1 and entry.fx then
 				local fx, fy, fz = entry.fx, entry.fy, entry.fz
-				if entry.targetID then
+				if entry.targetID and not recentFactoryBuildTargetCache[entry.targetID] then
 					local _, _, _, mx, my, mz = spGetUnitPosition(entry.targetID, true)
 					if mx then
 						fx, fy, fz = mx, my, mz
@@ -2813,15 +2893,17 @@ local function scanBuilders(frame)
 							local isRefilling = featureMetal and featureMaxMetal and featureMaxMetal > 0 and featureMetal < featureMaxMetal
 							local isResurrecting = resurrectProgress and resurrectProgress > 0 and resurrectProgress < 1
 							if isRefilling or isResurrecting then
-								bp = 1
+								bp = RESURRECT_REFILL_FALLBACK_BP
 								bpRefetched = true
 								info.cmdID = fallbackCmdID
 								info.targetID = fallbackTargetID
+								info.resurrectRefillFallbackActive = isRefilling and true or false
 							end
 						end
 					end
 				end
 				if not (bp and bp > 0) then
+					info.resurrectRefillFallbackActive = nil
 					-- Idle visit: clear lastVisitFrame so the next bp>0 visit
 					-- doesn't credit the idle gap as build time and dump a burst.
 					info.lastVisitFrame = nil
@@ -2992,11 +3074,13 @@ local function scanBuilders(frame)
 							-- player sees that work is happening. Debit the forced
 							-- emit from the accumulator (allowed to go negative) so
 							-- the long-run rate stays proportional to bp.
+							local feedbackForced = false
 							if emits == 0 and bp > 0 then
 								local lastEmit = info.lastEmitFrame or 0
 								if frame - lastEmit >= FEEDBACK_EMIT_MIN_GAP then
 									emits = 1
 									info.emitAccum = info.emitAccum - 1
+									feedbackForced = true
 								end
 							end
 							if emits > 0 then
@@ -3014,7 +3098,17 @@ local function scanBuilders(frame)
 							-- Count compensation still uses full `elapsed`, so total
 							-- emission rate is preserved.
 							local spreadWindow = math.min(MAX_SPREAD_AHEAD_FRAMES, elapsed)
-							local resurrectEmits = isResurrect and takeScaledEmitCount(info, "resurrectEmitAccum", emits, NanoParticleResurrectExtraRate) or emits
+							local resurrectEmits
+							if isResurrect then
+								resurrectEmits = takeScaledEmitCount(info, "resurrectEmitAccum", emits, NanoParticleResurrectExtraRate)
+								-- Preserve the visibility-feedback floor even when resurrect
+								-- scaling would quantize this frame down to zero.
+								if info.resurrectRefillFallbackActive and feedbackForced and resurrectEmits < 1 then
+									resurrectEmits = 1
+								end
+							else
+								resurrectEmits = emits
+							end
 							if resurrectEmits > 0 then
 								local n = info.nPieces
 								if n == 1 then
@@ -3260,7 +3354,7 @@ function gadget:GameFrame(n)
 		if nl.enabled then
 			nl.spawnRadius = 33
 			nl.alpha = 0.05
-			nl.correctEvery = 20
+			nl.correctEvery = 5
 			nl.lifeMult = 2.2
 			nl.minLifetime = 14
 			nl.maxLifetime = 96
@@ -3268,6 +3362,7 @@ function gadget:GameFrame(n)
 			nl.bridgeReady = Script.LuaUI("EnvNanoBallisticLightSpawn")
 				and Script.LuaUI("EnvNanoBallisticLightCorrect")
 				and Script.LuaUI("EnvNanoBallisticLightRemove")
+			nl.fadeReady = Script.LuaUI("EnvNanoBallisticLightFade")
 		else
 			if nl.activeCount > 0 then
 				local canRemove = Script.LuaUI("EnvNanoBallisticLightRemove")
@@ -3280,6 +3375,7 @@ function gadget:GameFrame(n)
 				nl.activeCount = 0
 			end
 			nl.bridgeReady = false
+			nl.fadeReady = false
 		end
 
 		local mode = Spring.GetConfigInt("NanoParticleMode", 1)
@@ -3453,6 +3549,7 @@ function gadget:UnitFinished(unitID, unitDefID)
 	homingFwdByTarget[unitID] = nil
 	fadeFwdByTarget[unitID]   = nil
 	targetPosCache[unitID]    = nil
+	local completionFactoryID, completionX, completionY, completionZ, completionRadius
 	-- Keep a completion timestamp so HOMING_SKIP_GRACE_FRAMES still applies
 	-- after UnitFinished; clearing this here made fresh emissions immediately
 	-- re-enter forward homing and chase units as they roll out of factories.
@@ -3466,10 +3563,30 @@ function gadget:UnitFinished(unitID, unitDefID)
 		local bid = trackedBuildersList[i]
 		local info = builderCache[bid]
 		if info and info.targetID == unitID then
+			if info.isFactory and not completionFactoryID then
+				local _, _, _, mx, my, mz = spGetUnitPosition(bid, true)
+				if mx then
+					completionFactoryID = bid
+					completionX, completionY, completionZ = mx, my, mz
+					completionRadius = spGetUnitRadius(bid) or 0
+				end
+			end
 			info.cmdID      = nil
 			info.targetID   = nil
 			info.targetMeta = nil
 		end
+	end
+	if completionFactoryID then
+		local frame = Spring.GetGameFrame()
+		recentFactoryBuildTargetCache[unitID] = {
+			frame,
+			completionFactoryID,
+			completionX,
+			completionY,
+			completionZ,
+			completionRadius,
+		}
+		factoryBuildTargetCache[unitID] = { piecePosEpoch, completionFactoryID, completionX, completionY, completionZ, completionRadius }
 	end
 	trackUnit(unitID, unitDefID)
 end
@@ -3533,6 +3650,7 @@ local function fadeOutHomingInverse(builderID)
 				local s0 = slot - 1
 				if s0 < dirtyMin     then dirtyMin = s0     end
 				if s0 + 1 > dirtyMax then dirtyMax = s0 + 1 end
+				fadeNanoDeferredLight(p.id, frame, fadeFrames)
 			end
 		end
 	end
@@ -3588,6 +3706,7 @@ fadeOutHomingFwd = function(unitID, includeSkipList)
 					local s0 = slot - 1
 					if s0 < dirtyMin     then dirtyMin = s0     end
 					if s0 + 1 > dirtyMax then dirtyMax = s0 + 1 end
+					fadeNanoDeferredLight(p.id, frame, fadeFrames)
 				end
 			end
 		end
