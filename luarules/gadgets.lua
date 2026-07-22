@@ -46,11 +46,17 @@ local actionHandler = VFS.Include(HANDLER_DIR .. 'actions.lua', nil, VFSMODE)
 
 local CHAT_ACTION_PREFIX = 'gui_chat:chataction:'
 local CHAT_ACTION_REQUEST = 'gui_chat:requestChatActions'
+local CHAT_ACTION_SNAPSHOT = 'snapshot'
+local CHAT_ACTION_INITIAL_SNAPSHOT_UPDATES = 5
 
 local chatActionRegistry = {
 	synced = {},
 	unsynced = {},
 }
+local chatActionBroadcastsEnabled = false
+local chatActionInitialSnapshotUpdates = 0
+
+local BroadcastChatActionUpdate
 
 local function GetChatActionSource()
 	return (SendToUnsynced ~= nil) and 'synced' or 'unsynced'
@@ -62,8 +68,8 @@ local function RegisterChatAction(source, cmd)
 		return
 	end
 	sourceRegistry[cmd] = true
-	if Spring.SendLuaUIMsg then
-		Spring.SendLuaUIMsg(CHAT_ACTION_PREFIX .. source .. ':add:' .. cmd)
+	if chatActionBroadcastsEnabled then
+		BroadcastChatActionUpdate(source, 'add', cmd)
 	end
 end
 
@@ -74,8 +80,8 @@ local function UnregisterChatAction(source, cmd)
 	end
 	if sourceRegistry[cmd] then
 		sourceRegistry[cmd] = nil
-		if Spring.SendLuaUIMsg then
-			Spring.SendLuaUIMsg(CHAT_ACTION_PREFIX .. source .. ':remove:' .. cmd)
+		if chatActionBroadcastsEnabled then
+			BroadcastChatActionUpdate(source, 'remove', cmd)
 		end
 	end
 end
@@ -99,21 +105,82 @@ actionHandler.RemoveChatAction = function(widget, cmd)
 	return textSuccess
 end
 
-local function BroadcastChatActionUpdate(source, mode, cmd)
-	if not Spring.SendLuaUIMsg then
+local function SendChatActionMessage(msg)
+	if Spring.SendLuaUIMsg then
+		Spring.SendLuaUIMsg(msg)
+	elseif SendToUnsynced then
+		SendToUnsynced(msg)
+	end
+end
+
+BroadcastChatActionUpdate = function(source, mode, cmd)
+	SendChatActionMessage(CHAT_ACTION_PREFIX .. source .. ':' .. mode .. ':' .. cmd)
+end
+
+local function EncodeChatActionSnapshot(actionMap)
+	local payload = {}
+	for cmd in pairs(actionMap or {}) do
+		if type(cmd) == 'string' and cmd ~= '' then
+			payload[#payload + 1] = tostring(#cmd)
+			payload[#payload + 1] = ':'
+			payload[#payload + 1] = cmd
+		end
+	end
+	return table.concat(payload)
+end
+
+local function ApplyChatActionSnapshot(source, payload)
+	local sourceRegistry = chatActionRegistry[source]
+	if not sourceRegistry then
 		return
 	end
-	Spring.SendLuaUIMsg(CHAT_ACTION_PREFIX .. source .. ':' .. mode .. ':' .. cmd)
+	for cmd in pairs(sourceRegistry) do
+		sourceRegistry[cmd] = nil
+	end
+	local pos = 1
+	local payloadLen = #payload
+	while pos <= payloadLen do
+		local sepStart, sepEnd = string.find(payload, ':', pos, true)
+		if not sepStart then
+			return
+		end
+		local cmdLen = tonumber(string.sub(payload, pos, sepStart - 1))
+		if not cmdLen or cmdLen < 0 then
+			return
+		end
+		local cmdStart = sepEnd + 1
+		local cmdEnd = cmdStart + cmdLen - 1
+		if cmdEnd > payloadLen then
+			return
+		end
+		sourceRegistry[string.sub(payload, cmdStart, cmdEnd)] = true
+		pos = cmdEnd + 1
+	end
+end
+
+local function ApplyChatActionMessage(msg)
+	local source, mode, cmd = string.sub(msg, #CHAT_ACTION_PREFIX + 1):match('^([^:]+):([^:]+):?(.*)$')
+	local sourceRegistry = source and chatActionRegistry[source]
+	if not sourceRegistry or not mode then
+		return
+	end
+	if mode == CHAT_ACTION_SNAPSHOT then
+		ApplyChatActionSnapshot(source, cmd or '')
+	elseif mode == 'clear' then
+		for action in pairs(sourceRegistry) do
+			sourceRegistry[action] = nil
+		end
+	elseif mode == 'add' and cmd ~= '' then
+		sourceRegistry[cmd] = true
+	elseif mode == 'remove' and cmd ~= '' then
+		sourceRegistry[cmd] = nil
+	end
 end
 
 local function BroadcastChatActionSnapshot(source, actionMap)
-	if not Spring.SendLuaUIMsg then
-		return
-	end
-	Spring.SendLuaUIMsg(CHAT_ACTION_PREFIX .. source .. ':clear')
-	for cmd in pairs(actionMap or chatActionRegistry[source] or {}) do
-		Spring.SendLuaUIMsg(CHAT_ACTION_PREFIX .. source .. ':add:' .. cmd)
-	end
+	chatActionBroadcastsEnabled = true
+	local payload = EncodeChatActionSnapshot(actionMap or chatActionRegistry[source])
+	SendChatActionMessage(CHAT_ACTION_PREFIX .. source .. ':' .. CHAT_ACTION_SNAPSHOT .. ':' .. payload)
 end
 
 -- Utility call
@@ -121,6 +188,8 @@ local isSyncedCode = (SendToUnsynced ~= nil)
 local function IsSyncedCode()
 	return isSyncedCode
 end
+
+local isHeadless = (Platform and Platform.isHeadless) or false
 
 if IsSyncedCode() then
 	local devModeEnabled = string.find(string.upper(Game.gameVersion), "$VERSION", 1, true)
@@ -347,6 +416,58 @@ local callInLists = {
 	"UnsyncedHeightMapUpdate"
 }
 
+local headlessDisabledCallIns = {
+	DrawUnit = true,
+	DrawFeature = true,
+	DrawShield = true,
+	DrawProjectile = true,
+	ViewResize = true,
+	DrawGenesis = true,
+	DrawWorld = true,
+	DrawWorldPreUnit = true,
+	DrawWorldShadow = true,
+	DrawWorldReflection = true,
+	DrawWorldRefraction = true,
+	DrawScreenEffects = true,
+	DrawScreenPost = true,
+	DrawScreen = true,
+	DrawInMiniMap = true,
+	DrawOpaqueUnitsLua = true,
+	DrawOpaqueFeaturesLua = true,
+	DrawAlphaUnitsLua = true,
+	DrawAlphaFeaturesLua = true,
+	DrawShadowUnitsLua = true,
+	DrawShadowFeaturesLua = true,
+	FontsChanged = true,
+}
+
+local headlessDisabledGadgetPrefixes = {
+	"gfx_",
+	"gui_",
+	"snd_",
+}
+
+local function ShouldSkipHeadlessUnsyncedGadget(gadget, basename)
+	if not isHeadless or IsSyncedCode() then
+		return false
+	end
+
+	for i = 1, #headlessDisabledGadgetPrefixes do
+		local prefix = headlessDisabledGadgetPrefixes[i]
+		if string.sub(basename, 1, #prefix) == prefix then
+			return true
+		end
+	end
+
+	for _, ciName in ipairs(callInLists) do
+		if type(gadget[ciName]) == 'function' and not headlessDisabledCallIns[ciName] then
+			return false
+		end
+	end
+
+	return true
+end
+
 
 -- initialize the call-in lists
 do
@@ -439,6 +560,8 @@ function gadgetHandler:Initialize()
 	-- Since Initialize is run out of the normal callin wrapper, we
 	-- need to reorder explicitly here.
 	gadgetHandler:PerformReorders()
+	BroadcastChatActionSnapshot(GetChatActionSource(), self.actionHandler.textActions)
+	chatActionInitialSnapshotUpdates = CHAT_ACTION_INITIAL_SNAPSHOT_UPDATES
 end
 
 function gadgetHandler:LoadGadget(filename, overridevfsmode)
@@ -489,6 +612,11 @@ function gadgetHandler:LoadGadget(filename, overridevfsmode)
 	err = self:ValidateGadget(gadget)
 	if err then
 		Spring.Log(LOG_SECTION, LOG.ERROR, 'Failed to load: ' .. basename .. '  (' .. err .. ')')
+		return nil
+	end
+
+	if ShouldSkipHeadlessUnsyncedGadget(gadget, basename) then
+		Spring.Log(LOG_SECTION, LOG.INFO, 'Headless: skipped unsynced gadget: ' .. basename)
 		return nil
 	end
 
@@ -879,6 +1007,11 @@ function gadgetHandler:UpdateCallIn(name)
 
 	_G[name] = nil
 
+	if isHeadless and headlessDisabledCallIns[name] then
+		Script.UpdateCallIn(name)
+		return
+	end
+
 	if forceUpdate or #self[listName] > 0 then
 		local selffunc = self[name]
 
@@ -1215,6 +1348,10 @@ function gadgetHandler:Shutdown()
 end
 
 function gadgetHandler:GameFrame(frameNum)
+	if IsSyncedCode() and chatActionInitialSnapshotUpdates > 0 then
+		BroadcastChatActionSnapshot('synced', self.actionHandler.textActions)
+		chatActionInitialSnapshotUpdates = chatActionInitialSnapshotUpdates - 1
+	end
 	-- Since GameGrame should never be called nested ensure here the callinDepth
 	-- is ok. We set it to 1 so after the run it will be set to 0 again.
 	callinDepth = 1
@@ -1252,6 +1389,13 @@ function gadgetHandler:RecvFromSynced(...)
 	local arg1, arg2 = ...
 	if arg1 == CHAT_ACTION_REQUEST then
 		BroadcastChatActionSnapshot('unsynced', self.actionHandler.textActions)
+		return true
+	end
+	if type(arg1) == 'string' and string.sub(arg1, 1, #CHAT_ACTION_PREFIX) == CHAT_ACTION_PREFIX then
+		ApplyChatActionMessage(arg1)
+		if Spring.SendLuaUIMsg then
+			Spring.SendLuaUIMsg(arg1)
+		end
 		return true
 	end
   if (type(arg1) == 'string') then
@@ -2263,6 +2407,11 @@ end
 
 function gadgetHandler:Update()
 	local deltaTime = Spring.GetLastUpdateSeconds()
+	if chatActionInitialSnapshotUpdates > 0 then
+		BroadcastChatActionSnapshot('synced', chatActionRegistry.synced)
+		BroadcastChatActionSnapshot('unsynced', self.actionHandler.textActions)
+		chatActionInitialSnapshotUpdates = chatActionInitialSnapshotUpdates - 1
+	end
 	tracy.ZoneBeginN("G:Update")
 	for _, g in ipairs(self.UpdateList) do
 		tracy.ZoneBeginN(g._tracyUpdateName)

@@ -469,12 +469,14 @@ if gadgetHandler:IsSyncedCode() then
 		if cmd == "desync" then
 			subPermission = "test"
 		elseif cmd == "givecat" or cmd == "loadmissiles" or cmd == "xpunits" or cmd == "destroyunits" or cmd == "removeunits" or
-			cmd == "removenearbyunits" or cmd == "reclaimunits" or cmd == "transferunits" or cmd == "select" or
+			cmd == "removenearbyunits" or cmd == "reclaimunits" or cmd == "transferunits" or cmd == "select" or cmd == "unselect" or
 			cmd == "neutralize" or cmd == "maxhealth" or cmd == "setsensors" or
 			cmd == "setblocking" or cmd == "relocate" or cmd == "setradius" or cmd == "setheight" or
 			cmd == "wreckunits" or cmd == "halfhealth" or cmd == "sethealth" or cmd == "spawnceg" or cmd == "spawnunitexplosion" or cmd == "removeunitdef" or cmd == "removeobjects" then
 			subPermission = "units"
 		elseif cmd == "playertoteam" or cmd == "killteam" then
+			subPermission = "teams"
+		elseif cmd == "godmode" or cmd == "godmodeally" then
 			subPermission = "teams"
 		elseif cmd == "globallos" or cmd == "clearwrecks" or cmd == "reducewrecks" then
 			subPermission = "terrain"
@@ -482,7 +484,8 @@ if gadgetHandler:IsSyncedCode() then
 			subPermission = "modmarker"
 		end
 
-		if not isAuthorized(playerID, subPermission) then
+		local bypassSyncedAuthorization = cmd == "godmode" or cmd == "godmodeally"
+		if not bypassSyncedAuthorization and not isAuthorized(playerID, subPermission) then
 			return
 		end
 
@@ -582,6 +585,13 @@ if gadgetHandler:IsSyncedCode() then
 			if foundUnits and requestID then
 				SendToUnsynced("devhelper_selectunits", playerID, requestID)
 			end
+		elseif cmd == "unselect" then
+			for n = 2, #words do
+				local unitID = tonumber(words[n])
+				if unitID and Spring.ValidUnitID(unitID) then
+					Spring.SetUnitNoSelect(unitID, true)
+				end
+			end
 		elseif cmd == "wreckunits" then
 			ExecuteSelUnits(words, playerID, 'wreck')
 		elseif cmd == "halfhealth" then
@@ -608,6 +618,10 @@ if gadgetHandler:IsSyncedCode() then
 			ReduceWrecksAndHeaps()
 		elseif cmd == "globallos" then
 			globallos(words)
+		elseif cmd == "godmode" then
+			godmode(words)
+		elseif cmd == "godmodeally" then
+			godmodeally(words)
 		elseif cmd == "playertoteam" then
 			playertoteam(words)
 		elseif cmd == "killteam" then
@@ -637,6 +651,28 @@ if gadgetHandler:IsSyncedCode() then
 			if not words[3] or allyTeamID == tonumber(words[3]) then
 				Spring.SetGlobalLos(allyTeamID, words[2] == '1')
 			end
+		end
+	end
+
+	function godmode(words)
+		local wasCheatingEnabled = Spring.IsCheatingEnabled()
+		if not wasCheatingEnabled then
+			Spring.SetCheatingEnabled(true)
+		end
+		Spring.SetGodMode(nil, words[2] == '1')
+		if not wasCheatingEnabled then
+			Spring.SetCheatingEnabled(false)
+		end
+	end
+
+	function godmodeally(words)
+		local wasCheatingEnabled = Spring.IsCheatingEnabled()
+		if not wasCheatingEnabled then
+			Spring.SetCheatingEnabled(true)
+		end
+		Spring.SetGodMode(words[2] == '1', nil)
+		if not wasCheatingEnabled then
+			Spring.SetCheatingEnabled(false)
 		end
 	end
 
@@ -981,48 +1017,65 @@ else	-- UNSYNCED
 	local lastSelectionBoxFrame = -1
 	local HOVER_PICK_SCREEN_RADIUS = 18
 	local HOVER_PICK_WORLD_RADIUS = 120
+	local godModeControlAllies, godModeControlEnemies
+
+	local function initializeGodModeState()
+		if godModeControlAllies == nil or godModeControlEnemies == nil then
+			local enabled = Spring.IsGodModeEnabled()
+			godModeControlAllies = enabled
+			godModeControlEnemies = enabled
+		end
+	end
 
 
 
 	function gadget:Initialize()
-		-- doing it via GotChatMsg ensures it will only listen to the caller
-		gadgetHandler:AddChatAction('loadmissiles', loadMissiles)
-		gadgetHandler:AddChatAction('givecat', GiveCat)
-		gadgetHandler:AddChatAction('destroyunits', destroyUnits)
-		gadgetHandler:AddChatAction('wreckunits', wreckUnits)
-		gadgetHandler:AddChatAction('reclaimunits', reclaimUnits)
-		gadgetHandler:AddChatAction('removeunits', removeUnits)
-		gadgetHandler:AddChatAction('removenearbyunits', removeNearbyUnits)
-		gadgetHandler:AddChatAction('transferunits', transferUnits)
-		gadgetHandler:AddChatAction('neutralize', neutralizeUnits)
-		gadgetHandler:AddChatAction('maxhealth', maxHealthUnits)
-		gadgetHandler:AddChatAction('setsensors', setSensors)
-		gadgetHandler:AddChatAction('setblocking', setBlocking)
-		gadgetHandler:AddChatAction('relocate', relocateUnits)
-		gadgetHandler:AddChatAction('setradius', setRadiusUnits)
-		gadgetHandler:AddChatAction('setheight', setHeightUnits)
-		gadgetHandler:AddChatAction('select', selectHoveredUnit)
-		gadgetHandler:AddChatAction('halfhealth', halfHealth)
-		gadgetHandler:AddChatAction('sethealth', setHealth)
+		local myPlayerID = Spring.GetMyPlayerID()
+		local function addAuthorizedChatAction(permission, action, handler)
+			if isAuthorized(myPlayerID, permission) then
+				gadgetHandler:AddChatAction(action, handler)
+			end
+		end
 
-		gadgetHandler:AddChatAction('xp', xpUnits)
+		addAuthorizedChatAction('units', 'loadmissiles', loadMissiles)
+		addAuthorizedChatAction('units', 'givecat', GiveCat)
+		addAuthorizedChatAction('units', 'destroyunits', destroyUnits)
+		addAuthorizedChatAction('units', 'wreckunits', wreckUnits)
+		addAuthorizedChatAction('units', 'reclaimunits', reclaimUnits)
+		addAuthorizedChatAction('units', 'removeunits', removeUnits)
+		addAuthorizedChatAction('units', 'removenearbyunits', removeNearbyUnits)
+		addAuthorizedChatAction('units', 'transferunits', transferUnits)
+		addAuthorizedChatAction('units', 'neutralize', neutralizeUnits)
+		addAuthorizedChatAction('units', 'maxhealth', maxHealthUnits)
+		addAuthorizedChatAction('units', 'setsensors', setSensors)
+		addAuthorizedChatAction('units', 'setblocking', setBlocking)
+		addAuthorizedChatAction('units', 'relocate', relocateUnits)
+		addAuthorizedChatAction('units', 'setradius', setRadiusUnits)
+		addAuthorizedChatAction('units', 'setheight', setHeightUnits)
+		addAuthorizedChatAction('units', 'select', selectHoveredUnit)
+		addAuthorizedChatAction('units', 'unselect', unselectHoveredUnit)
+		addAuthorizedChatAction('units', 'halfhealth', halfHealth)
+		addAuthorizedChatAction('units', 'sethealth', setHealth)
+		addAuthorizedChatAction('units', 'xp', xpUnits)
+		addAuthorizedChatAction('units', 'spawnceg', spawnceg)
+		addAuthorizedChatAction('units', 'spawnunitexplosion', spawnunitexplosion)
+		addAuthorizedChatAction('units', 'dumpunits', dumpUnits)
+		addAuthorizedChatAction('units', 'dumpfeatures', dumpFeatures)
+		addAuthorizedChatAction('units', 'dumploadout', dumpLoadout)
+		addAuthorizedChatAction('units', 'removeunitdef', removeUnitDef)
+		addAuthorizedChatAction('units', 'removeobjects', removeObjects)
 
-		gadgetHandler:AddChatAction('spawnceg', spawnceg)
-		gadgetHandler:AddChatAction('spawnunitexplosion', spawnunitexplosion)
+		addAuthorizedChatAction('terrain', 'clearwrecks', clearWrecks)
+		addAuthorizedChatAction('terrain', 'reducewrecks', reduceWrecks)
+		addAuthorizedChatAction('terrain', 'globallos', globallos)
 
-		gadgetHandler:AddChatAction('dumpunits', dumpUnits)
-		gadgetHandler:AddChatAction('dumpfeatures', dumpFeatures)
-		gadgetHandler:AddChatAction('dumploadout', dumpLoadout)
-		gadgetHandler:AddChatAction('removeunitdef', removeUnitDef)
-		gadgetHandler:AddChatAction('removeobjects', removeObjects)
-		gadgetHandler:AddChatAction('clearwrecks', clearWrecks)
-		gadgetHandler:AddChatAction('reducewrecks', reduceWrecks)
+		addAuthorizedChatAction('teams', 'playertoteam', playertoteam)
+		addAuthorizedChatAction('teams', 'killteam', killteam)
+		addAuthorizedChatAction('teams', 'godmode', godmode)
+		addAuthorizedChatAction('teams', 'godmodeally', godmodeally)
 
-		gadgetHandler:AddChatAction('globallos', globallos)
-		gadgetHandler:AddChatAction('playertoteam', playertoteam)
-		gadgetHandler:AddChatAction('killteam', killteam)
-		gadgetHandler:AddChatAction('desync', desync)
-		gadgetHandler:AddChatAction('modmarker', modmarker)
+		addAuthorizedChatAction('test', 'desync', desync)
+		addAuthorizedChatAction('modmarker', 'modmarker', modmarker)
 		-- Moderator broadcast ping: the synced modmarker handler relays here, and
 		-- every client draws it locally (localOnly=true) so ALL players see it.
 		gadgetHandler:AddSyncAction("modmarker", function(_, x, y, z, label)
@@ -1057,6 +1110,7 @@ else	-- UNSYNCED
 		gadgetHandler:RemoveChatAction('setradius')
 		gadgetHandler:RemoveChatAction('setheight')
 		gadgetHandler:RemoveChatAction('select')
+		gadgetHandler:RemoveChatAction('unselect')
 		gadgetHandler:RemoveChatAction('halfhealth')
 		gadgetHandler:RemoveChatAction('sethealth')
 		gadgetHandler:RemoveChatAction('xp')
@@ -1072,6 +1126,8 @@ else	-- UNSYNCED
 		gadgetHandler:RemoveChatAction('globallos')
 		gadgetHandler:RemoveChatAction('playertoteam')
 		gadgetHandler:RemoveChatAction('killteam')
+		gadgetHandler:RemoveChatAction('godmode')
+		gadgetHandler:RemoveChatAction('godmodeally')
 		gadgetHandler:RemoveChatAction('desync')
 		gadgetHandler:RemoveChatAction('modmarker')
 		gadgetHandler:RemoveSyncAction("modmarker")
@@ -1175,13 +1231,15 @@ else	-- UNSYNCED
 		end
 		processUnits(_, line, words, playerID, 'setheight')
 	end
-	function selectHoveredUnit(_, line, words, playerID)
+	function selectHoveredUnit(_, line, words, playerID, action)
 		if playerID ~= Spring.GetMyPlayerID() then
 			return
 		end
 		if not isAuthorized(playerID, "units") then
 			return
 		end
+
+		action = action or 'select'
 
 		local targetUnits = {}
 		local boxX1, boxY1, boxX2, boxY2 = Spring.GetSelectionBox()
@@ -1269,15 +1327,23 @@ else	-- UNSYNCED
 			return
 		end
 
-		selectRequestSeq = selectRequestSeq + 1
-		local requestID = tostring(selectRequestSeq)
-		pendingSelectRequests[requestID] = uniqueUnits
-
-		local msg = PACKET_HEADER .. ':select:' .. requestID
+		local msg
+		if action == 'select' then
+			selectRequestSeq = selectRequestSeq + 1
+			local requestID = tostring(selectRequestSeq)
+			pendingSelectRequests[requestID] = uniqueUnits
+			msg = PACKET_HEADER .. ':select:' .. requestID
+		else
+			msg = PACKET_HEADER .. ':unselect'
+		end
 		for i = 1, uniqueCount do
 			msg = msg .. ':' .. uniqueUnits[i]
 		end
 		Spring.SendLuaRulesMsg(msg)
+	end
+
+	function unselectHoveredUnit(_, line, words, playerID)
+		selectHoveredUnit(_, line, words, playerID, 'unselect')
 	end
 	function halfHealth(_, line, words, playerID)
 		processUnits(_, line, words, playerID, 'halfhealth')
@@ -1718,6 +1784,32 @@ else	-- UNSYNCED
 		local globallos = (not words[1] or words[1] ~= '0') or false
 		Spring.Echo("Globallos: " .. (globallos and 'enabled' or 'disabled'))
 		Spring.SendLuaRulesMsg(PACKET_HEADER .. ':globallos:' .. (globallos and ' 1' or ' 0')..(words[2] and ':'..words[2] or ''))
+	end
+
+	function godmode(_, line, words, playerID)
+		if playerID ~= Spring.GetMyPlayerID() then
+			return
+		end
+		if not isAuthorized(playerID, "teams") then
+			return
+		end
+		initializeGodModeState()
+		godModeControlEnemies = not godModeControlEnemies
+		Spring.Echo("Enemy godmode: " .. (godModeControlEnemies and 'enabled' or 'disabled'))
+		Spring.SendLuaRulesMsg(PACKET_HEADER .. ':godmode:' .. (godModeControlEnemies and '1' or '0'))
+	end
+
+	function godmodeally(_, line, words, playerID)
+		if playerID ~= Spring.GetMyPlayerID() then
+			return
+		end
+		if not isAuthorized(playerID, "teams") then
+			return
+		end
+		initializeGodModeState()
+		godModeControlAllies = not godModeControlAllies
+		Spring.Echo("Ally godmode: " .. (godModeControlAllies and 'enabled' or 'disabled'))
+		Spring.SendLuaRulesMsg(PACKET_HEADER .. ':godmodeally:' .. (godModeControlAllies and '1' or '0'))
 	end
 
 	function playertoteam(_, line, words, playerID, action)
