@@ -9,7 +9,8 @@ return {
 		canmove = true,
 		canrepair = false,
 		canrestore = false,
-		collisionvolumeoffsets = "0 0 0",
+		capturespeed = 225,
+        collisionvolumeoffsets = "0 0 0",
 		collisionvolumescales = "28 15 28",
 		collisionvolumetype = "box",
 		corpse = "DEAD",
@@ -80,7 +81,8 @@ return {
 		},
 		sounds = {
 			canceldestruct = "cancel2",
-			underattack = "warning1",
+			capture = "capture1",
+            underattack = "warning1",
 			cant = {
 				[1] = "cantdo4",
 			},

@@ -44,7 +44,12 @@ return {
 		turninplacespeedlimit = 1.4388,
 		turnrate = 1581,
 		upright = true,
+		-- workertime is buildpower
 		workertime = 50,
+		--buildable beholder
+		buildoptions = {
+		[1] = "armeyes",
+		},
 		customparams = {
 			firestateoncloak = 0,
 			model_author = "FireStorm",

@@ -12,17 +12,17 @@ return {
 		explodeas = "largeExplosionGeneric-phib",
 		footprintx = 3,
 		footprintz = 3,
-		health = 5000,
+		health = 5250,
 		leavetracks = true,
 		maxacc = 0.03252,
 		maxdec = 0.1,
 		maxslope = 12,
 		maxwaterdepth = 255,
-		metalcost = 750,
+        metalcost = 750,
 		movementclass = "ATANK3",
 		nochasecategory = "VTOL",
 		objectname = "Units/ARMCROC.s3o",
-		script = "Units/ARMCROC.cob",
+        script = "Units/ARMCROC.cob",
 		seismicsignature = 0,
 		selfdestructas = "largeExplosionGenericSelfd-phib",
 		sightdistance = 500,
@@ -106,7 +106,7 @@ return {
 		},
 		weapondefs = {
 			arm_triton = {
-				areaofeffect = 64,
+				areaofeffect = 80,
 				avoidfeature = false,
 				craterareaofeffect = 64,
 				craterboost = 0,
@@ -186,7 +186,7 @@ return {
 					vtol = 60,
 				},
 			},
-		},
+	},
 		weapons = {
 			[1] = {
 				def = "ARM_TRITON",
@@ -197,7 +197,7 @@ return {
 				def = "ARMCL_MISSILE",
 				fastautoretargeting = true,
 				onlytargetcategory = "VTOL",
-			},
-		},
+                },
+            },
 	},
 }

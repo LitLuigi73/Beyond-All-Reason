@@ -1,4 +1,4 @@
--- stylua: ignore start
+I have it working finally-- stylua: ignore start
 ---@type table<string, number>
 local unitOrderTable = {
 -- UNITS
@@ -462,8 +462,18 @@ local unitOrderTable = {
 	leglts      = 010520,
 	legatrans      = 010525,
 
-	armdfly        = 010610,
-	corseah        = 010620,
+	['armdfly']        = 010610,
+	['corseah']        = 010620,
+	
+	--REMOVED TRANSPORTS
+	
+	['armtship']       = 010540,
+	['cortship']       = 010550,
+
+	['armthovr']       = 010560,
+	['corthovr']       = 010570,
+
+	['corintr']        = 010600,
 
 	-- ANTINUKES
 	armscab        = 020000,
