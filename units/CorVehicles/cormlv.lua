@@ -25,7 +25,7 @@ return {
 		mass = 300,
 		maxacc = 0.06681,
 		--- maxdec = 0.1327,
-		maxdec = 0.2654,
+		maxdec = 0.3981,
 		maxslope = 16,
 		maxwaterdepth = 0,
 		metalcost = 65,
