@@ -2131,7 +2131,6 @@ else -- UNSYNCED
 		local mx, my = Spring.GetMouseState()
 		local t, pos = Spring.TraceScreenRay(mx, my, true)
 		if type(pos) == "table" then
-			local n = 0
 			local ox, oy, oz = math.floor(pos[1]), math.floor(pos[2] + height), math.floor(pos[3])
 			local x, y, z = ox, oy, oz
 			local msg = "spawnceg "
@@ -2808,6 +2807,9 @@ else -- UNSYNCED
 				or (ud.metalMake or 0) > 0
 				or (cp and cp.unitgroup == "metal")
 		end)
+		addFilter("rework", function(ud)
+			return string.find(string.lower(ud.name or ""), "_rework", 1, true) ~= nil
+		end)
 		addFilter("all", function()
 			return true
 		end)
@@ -2874,7 +2876,6 @@ else -- UNSYNCED
 		local mx, my = Spring.GetMouseState()
 		local t, pos = Spring.TraceScreenRay(mx, my, true)
 		if type(pos) == "table" then
-			local n = 0
 			local ox, oz = math.floor(pos[1]), math.floor(pos[3])
 			local x, z = ox, oz
 
