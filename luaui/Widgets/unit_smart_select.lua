@@ -31,7 +31,7 @@ local selectBuildingsWithMobile = false -- whether to select buildings when mobi
 local includeNanosAsMobile = true
 local includeBuilders = false
 local includeResurrectors = false
-local includeScouts = false
+-- local includeScouts = false
 local includeAntinuke = false
 local includeRadar = false
 local includeJammer = false
@@ -104,14 +104,14 @@ for udid, udef in pairs(UnitDefs) do
 	local building = (isMobile == false)
 	local isUtil = udef.customParams.unitgroup == "util"
 	local antinuke = isMobile and udef.customParams.unitgroup == "antinuke"
-	local radar = udef.canFly == false and isMobile and isUtil and udef.radarDistance > 0
+	local radar = isMobile and isUtil and udef.radarDistance > 0
 	local jammer = isMobile and isUtil and udef.radarDistanceJam > 0
-	local scout = udef.canFly == true and isMobile and isUtil and udef.radarDistance > 0
+	-- local scout = udef.canFly == true and isMobile and isUtil and udef.radarDistance > 0
 
 	if udef.customParams.selectable_as_combat_unit then
 		builder = false
 		resurrector = false
-		scout = false
+		-- local scout = false
 	end
 
 	local combat = ((not builder) and isMobile and (#udef.weapons > 0)) or udef.customParams.selectable_as_combat_unit
@@ -125,7 +125,7 @@ for udid, udef in pairs(UnitDefs) do
 	antinukeFilter[udid] = antinuke
 	radarFilter[udid] = radar
 	jammerFilter[udid] = jammer
-	scoutFilter[udid] = scout
+	-- local scoutFilter[udid] = scout
 end
 
 local function smartSelectIncludeFilter(udid)
@@ -139,7 +139,7 @@ local function smartSelectIncludeFilter(udid)
 		{ include = includeAntinuke, filter = antinukeFilter },
 		{ include = includeRadar, filter = radarFilter },
 		{ include = includeJammer, filter = jammerFilter },
-		{ include = includeScouts, filter = scoutFilter },
+		-- { include = includeScouts, filter = scoutFilter },
 	}
 	for _, unit in ipairs(smartSelectFilters) do
 		if not unit.include and unit.filter[udid] then
@@ -761,12 +761,12 @@ function widget:Initialize()
 	WG.smartselect.setIncludeJammer = function(value)
 		includeJammer = value
 	end
-	WG.smartselect.getIncludeScouts = function()
-		return includeScouts
-	end
-	WG.smartselect.setIncludeScouts = function(value)
-		includeScouts = value
-	end
+	-- WG.smartselect.getIncludeScouts = function()
+	-- 	return includeScouts
+	-- end
+	-- WG.smartselect.setIncludeScouts = function(value)
+	-- 	includeScouts = value
+	-- end
 
 	widget:ViewResize()
 end
@@ -780,7 +780,7 @@ function widget:GetConfigData()
 		includeAntinuke = includeAntinuke,
 		includeRadar = includeRadar,
 		includeJammer = includeJammer,
-		includeScouts = includeScouts,
+		-- includeScouts = includeScouts,
 	}
 end
 
@@ -806,7 +806,7 @@ function widget:SetConfigData(data)
 	if data.includeJammer ~= nil then
 		includeJammer = data.includeJammer
 	end
-	if data.includeScouts ~= nil then
-		includeScouts = data.includeScouts
-	end
+	-- if data.includeScouts ~= nil then
+	-- 	includeScouts = data.includeScouts
+	-- end
 end
