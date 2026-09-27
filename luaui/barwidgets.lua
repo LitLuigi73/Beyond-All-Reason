@@ -213,6 +213,7 @@ local callInLists = {
 	"Update",
 	"TextCommand",
 	"CommandNotify",
+	"AllowQuit",
 	"AddConsoleLine",
 	"ViewResize",
 	"DrawScreen",
@@ -236,6 +237,7 @@ local callInLists = {
 	"CommandsChanged",
 	"LanguageChanged",
 	"UnitBlocked",
+	"BuildOptionsChanged",
 	"VisibleUnitAdded",
 	"VisibleUnitRemoved",
 	"VisibleUnitsChanged",
@@ -485,6 +487,15 @@ function widgetHandler:Initialize()
 	loadWidgetFiles(WIDGET_DIRNAME, VFS.ZIP)
 	loadWidgetFiles(RML_WIDGET_DIRNAME, VFS.ZIP)
 
+	local ModuleHandler = require("modules/module_handler", nil, VFS.ZIP)
+	ModuleHandler.Register(VFS.ZIP)
+	for _, moduleWidgetDir in ipairs(ModuleHandler.WidgetDirs(VFS.ZIP)) do
+		loadWidgetFiles(moduleWidgetDir, VFS.ZIP)
+	end
+	for _, moduleWidgetDir in ipairs(ModuleHandler.RmlWidgetDirs(VFS.ZIP)) do
+		loadWidgetFiles(moduleWidgetDir, VFS.ZIP)
+	end
+
 	table.sort(unsortedWidgets, function(w1, w2)
 		local l1 = w1.whInfo.layer
 		local l2 = w2.whInfo.layer
@@ -626,7 +637,7 @@ function widgetHandler:LoadWidget(filename, fromZip, enableLocalsAccess, reload)
 		-- opposed to not being able to access them at all from outside the widget). This is accomplished by loading the
 		-- widget with an additional code snippet to list all of the local variables, getting that result, and then
 		-- loading again with a code snippet that sets up external access to those variables.
-		localsAccess = localsAccess or VFS.Include("common/testing/locals_access.lua")
+		localsAccess = localsAccess or require("common/testing/locals_access")
 
 		local textWithLocalsDetector = text .. localsAccess.localsDetectorString
 
@@ -1850,8 +1861,9 @@ function widgetHandler:ConfigureLayout(command)
 		self:SendConfigData()
 		return true
 	elseif command == "selector" then
-		-- F11's original binding, which looked for LuaUI/selector.lua. This game ships no such file: its
-		-- selector is Widgets/widget_selector.lua, which binds F11 to /widgetselector itself once it runs.
+		-- F11's binding in every shipped preset. It once looked for LuaUI/selector.lua, which this game does
+		-- not ship: its selector is Widgets/widget_selector.lua, reached through what it puts in WG, or
+		-- switched back on here when an error took it down.
 		if not self:RecoverWidgetSelector() and self.WG.widgetselector then
 			self.WG.widgetselector.toggle()
 		end
@@ -1918,6 +1930,20 @@ function widgetHandler:CommandNotify(id, params, options)
 	end
 	tracy.ZoneEnd()
 	return false
+end
+
+-- Engine AllowQuit callin (Engine.FeatureSupport.allowQuitCallin): a window
+-- close request (the close button, Alt+F4) asks before the game quits. Every
+-- widget that answers must allow; a widget that returns false keeps the game
+-- open and is expected to quit it later itself (Spring.Quit never asks).
+-- Engines without the callin never call this.
+function widgetHandler:AllowQuit()
+	for _, w in ipairs(self.AllowQuitList) do
+		if w:AllowQuit() == false then
+			return false
+		end
+	end
+	return true
 end
 
 function widgetHandler:AddConsoleLine(msg, priority)
@@ -2383,6 +2409,8 @@ function widgetHandler:KeyRelease(key, mods, label, unicode, scanCode, actions)
 
 	if textOwner then
 		if (not textOwner.KeyRelease) or textOwner:KeyRelease(key, mods, label, unicode, scanCode, actions) then
+			-- the action handler (actions.lua) never sees this release, so let's forget the key itself
+			self.actionHandler:ClearPressedKey(scanCode)
 			tracy.ZoneEnd()
 			return true
 		end
@@ -2904,10 +2932,19 @@ function widgetHandler:LanguageChanged()
 	tracy.ZoneEnd()
 end
 
-function widgetHandler:UnitBlocked(unitDefID, reasons)
+function widgetHandler:UnitBlocked(unitDefID, reasons, builderUnitDefID)
 	tracy.ZoneBeginN("W:UnitBlocked")
 	for _, w in ipairs(self.UnitBlockedList) do
-		w:UnitBlocked(unitDefID, reasons)
+		w:UnitBlocked(unitDefID, reasons, builderUnitDefID)
+	end
+	tracy.ZoneEnd()
+end
+
+---A builder unit type gained or lost a build option (api_dynamic_build_options.lua).
+function widgetHandler:BuildOptionsChanged(builderUnitDefID, builtUnitDefID, added)
+	tracy.ZoneBeginN("W:BuildOptionsChanged")
+	for _, w in ipairs(self.BuildOptionsChangedList) do
+		w:BuildOptionsChanged(builderUnitDefID, builtUnitDefID, added)
 	end
 	tracy.ZoneEnd()
 end
