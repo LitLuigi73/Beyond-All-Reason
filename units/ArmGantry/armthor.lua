@@ -226,7 +226,7 @@ return {
 				rgbcolor = "0.5 0.5 1",
 				soundhit = "lasrfir2",
 				soundhitwet = "sizzle",
-				soundstart = "lghthvy1",
+				soundstart = "electric2",
 				soundtrigger = true,
 				thickness = 1.8,
 				turret = true,
