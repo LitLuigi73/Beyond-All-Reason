@@ -51,6 +51,7 @@ return {
 		[1] = "armeyes",
 		},
 		customparams = {
+			deactivate_time = 8,
 			firestateoncloak = 0,
 			model_author = "FireStorm",
 			normaltex = "unittextures/Arm_normal.dds",
