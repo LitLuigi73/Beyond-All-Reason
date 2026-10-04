@@ -140,45 +140,45 @@ local options = {
 				key = "neverend",
 				name = "Never ending",
 				desc = "Teams are never eliminated",
-				lock = { "dominion_config", "dominion_elimination_threshold_multiplier" },
+				lock = { "territorial_domination_config", "territorial_domination_elimination_threshold_multiplier" },
 			},
 			{
 				key = "com",
 				name = "Kill all enemy Commanders",
 				desc = "When a team has no Commanders left, it loses",
-				lock = { "dominion_config", "dominion_elimination_threshold_multiplier" },
+				lock = { "territorial_domination_config", "territorial_domination_elimination_threshold_multiplier" },
 			},
 			{
-				key = "dominion",
-				name = "Dominion",
+				key = "territorial_domination",
+				name = "Territorial Domination",
 				desc = "Teams earn points by capturing territory to stay in the game. At the end of the final Deadline, the team with the most points wins.",
-				unlock = { "dominion_config", "dominion_elimination_threshold_multiplier" },
+				unlock = { "territorial_domination_config", "territorial_domination_elimination_threshold_multiplier" },
 			},
 			{
 				key = "builders",
 				name = "Kill all Builders",
 				desc = "When a team has no builders left, it loses",
-				lock = { "dominion_config", "dominion_elimination_threshold_multiplier" },
+				lock = { "territorial_domination_config", "territorial_domination_elimination_threshold_multiplier" },
 			},
 			{
 				key = "killall",
 				name = "Kill everything",
 				desc = "Every last unit must be eliminated, no exceptions!",
-				lock = { "dominion_config", "dominion_elimination_threshold_multiplier" },
+				lock = { "territorial_domination_config", "territorial_domination_elimination_threshold_multiplier" },
 			},
 			{
 				key = "own_com",
 				name = "Player resign on Com death",
 				desc = "When player commander dies, you auto-resign.",
-				lock = { "dominion_config", "dominion_elimination_threshold_multiplier" },
+				lock = { "territorial_domination_config", "territorial_domination_elimination_threshold_multiplier" },
 			},
 		},
 	},
 
 	-- NOTE: update language/en/interface.json when you change name or desc
 	{
-		key = "dominion_config",
-		name = "Dominion Length",
+		key = "territorial_domination_config",
+		name = "Territorial Domination Length",
 		desc = "Configures the number of six-minute Deadlines and the total time before final score resolution.",
 		type = "list",
 		def = "30_minutes",
@@ -214,7 +214,7 @@ local options = {
 
 	-- NOTE: update language/en/interface.json when you change name or desc
 	{
-		key = "dominion_elimination_threshold_multiplier",
+		key = "territorial_domination_elimination_threshold_multiplier",
 		name = "Deadline Multiplier",
 		desc = "Teams below the Deadline value are eliminated when a Deadline ends. The next Deadline value is the leader's score multiplied by this value. Lower values are more lenient.",
 		type = "number",

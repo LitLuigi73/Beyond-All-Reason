@@ -124,7 +124,6 @@ end
 -- Widget callbacks
 --------------------------------------------------------------------------------
 function widget:Initialize()
-	widgetHandler:RegisterUnitCommand(CMD.REPEAT)
 	if not gl.CreateShader then
 		widgetHandler:RemoveWidget()
 		return

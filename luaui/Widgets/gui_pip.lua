@@ -25233,11 +25233,7 @@ function widget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOp
 	end
 
 	-- Only show commands for the ally team we're "viewing as"
-	local unitAllyTeam = teamAllyTeamCache[unitTeam]
-	if not unitAllyTeam then
-		unitAllyTeam = spFunc.GetTeamAllyTeamID(unitTeam)
-		teamAllyTeamCache[unitTeam] = unitAllyTeam
-	end
+	local _, _, _, _, _, unitAllyTeam = spFunc.GetTeamInfo(unitTeam, false)
 	if cameraState.mySpecState then
 		-- Spectator: determine which ally team is relevant
 		local viewAllyTeam = nil -- nil = show all (fullview spectator, no tracking)
@@ -25330,17 +25326,15 @@ function widget:UnitCommand(unitID, unitDefID, unitTeam, cmdID, cmdParams, cmdOp
 		startX, startZ = ux, uz
 	end
 
-	-- Update last target for this unit (for chaining subsequent commands)
-	if lastTarget then
-		lastTarget.x, lastTarget.z, lastTarget.time = targetX, targetZ, wallClockTime
-	else
-		commandFX.lastTarget[unitID] = { x = targetX, z = targetZ, time = wallClockTime }
-	end
-
 	-- Don't add if start and target are at same spot
 	if math.abs(startX - targetX) < 1 and math.abs(startZ - targetZ) < 1 then
+		-- Still update last target for further chaining
+		commandFX.lastTarget[unitID] = { x = targetX, z = targetZ, time = wallClockTime }
 		return
 	end
+
+	-- Update last target for this unit (for chaining subsequent commands)
+	commandFX.lastTarget[unitID] = { x = targetX, z = targetZ, time = wallClockTime }
 
 	-- Add to FX list (cap at max entries)
 	if commandFX.count < commandFX.MAX then

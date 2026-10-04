@@ -1144,7 +1144,6 @@ function widget:PlayerChanged(playerID)
 end
 
 function widget:Initialize()
-	widgetHandler:RegisterUnitCommand(CMD.ONOFF)
 	widgetHandler:AddAction("defrange", defrangeCmd, nil, "t")
 
 	initUnitList()

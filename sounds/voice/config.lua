@@ -161,19 +161,19 @@ return {
 	GamePaused = {
 		delay = 1,
 	},
-	["Dominion/EnemyTeamEliminated"] = {
+	["TerritorialDomination/EnemyTeamEliminated"] = {
 		delay = 2,
 	},
-	["Dominion/YourTeamEliminated"] = {
+	["TerritorialDomination/YourTeamEliminated"] = {
 		delay = 2,
 	},
-	["Dominion/GainedLead"] = {
+	["TerritorialDomination/GainedLead"] = {
 		delay = 20,
 	},
-	["Dominion/LostLead"] = {
+	["TerritorialDomination/LostLead"] = {
 		delay = 20,
 	},
-	["Dominion/EliminationDanger"] = {
+	["TerritorialDomination/EliminationDanger"] = {
 		delay = 60,
 	},
 

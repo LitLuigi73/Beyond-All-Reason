@@ -92,11 +92,11 @@ function widget:LanguageChanged()
 	elseif deathmode == "builders" then
 		key = "killAllBuilders"
 	elseif
-		deathmode == "dominion"
+		deathmode == "territorial_domination"
 		and not BAR.Utilities.Gametype.IsRaptors()
 		and not BAR.Utilities.Gametype.IsScavengers()
 	then
-		key = "dominion"
+		key = "territorialDomination"
 	else
 		key = "killAllCommanders"
 	end

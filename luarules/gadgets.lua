@@ -772,9 +772,6 @@ function gadgetHandler:NewGadget()
 	gh.DeregisterAllowCommands = function(_)
 		return self:DeregisterAllowCommands(gadget)
 	end
-	gh.RegisterUnitCommand = function(_, cmdID)
-		return self:RegisterUnitCommand(gadget, cmdID)
-	end
 
 	if not IsSyncedCode() then
 		gh.AddSyncAction = function(_, cmd, func, help)
@@ -2313,13 +2310,6 @@ function gadgetHandler:UnitGiven(unitID, unitDefID, unitTeam, oldTeam)
 	return
 end
 
--- Limits gadget:UnitCommand to the registered commands (CMD.BUILD: all build commands).
--- Gadgets that never register get every command.
-function gadgetHandler:RegisterUnitCommand(gadget, cmdID)
-	gadget._unitCommandIDs = gadget._unitCommandIDs or {}
-	gadget._unitCommandIDs[cmdID] = true
-end
-
 function gadgetHandler:UnitCommand(
 	unitID,
 	unitDefID,
@@ -2333,13 +2323,8 @@ function gadgetHandler:UnitCommand(
 	fromLua
 )
 	tracy.ZoneBeginN("G:UnitCommand")
-	local list = self.UnitCommandList
-	for i = 1, #list do
-		local g = list[i]
-		local cmdIDs = g._unitCommandIDs
-		if not cmdIDs or cmdIDs[cmdId] or (cmdId < 0 and cmdIDs[CMD_BUILD]) then
-			g:UnitCommand(unitID, unitDefID, unitTeam, cmdId, cmdParams, cmdOpts, cmdTag, playerID, fromSynced, fromLua)
-		end
+	for _, g in ipairs(self.UnitCommandList) do
+		g:UnitCommand(unitID, unitDefID, unitTeam, cmdId, cmdParams, cmdOpts, cmdTag, playerID, fromSynced, fromLua)
 	end
 	markIdle(unitID)
 	tracy.ZoneEnd()

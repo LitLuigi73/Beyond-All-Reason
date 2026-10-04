@@ -3,7 +3,7 @@ body {
 	font-family: Exo 2;
 }
 
-.dominion-panel {
+.td-panel {
 	position: absolute;
 	display: block;
 	width: 240dp;
@@ -20,15 +20,15 @@ body {
 	transition: height 0.18s cubic-out, top 0.18s cubic-out;
 }
 
-.dominion-panel.expanded {
+.td-panel.expanded {
 	height: 204dp;
 }
 
-.dominion-panel.dragging {
+.td-panel.dragging {
 	transition: height 0s, top 0s;
 }
 
-.dominion-panel-outer-halo {
+.td-panel-outer-halo {
 	position: absolute;
 	display: block;
 	width: 240dp;
@@ -40,15 +40,15 @@ body {
 	transition: height 0.18s cubic-out, top 0.18s cubic-out;
 }
 
-.dominion-panel-outer-halo.expanded {
+.td-panel-outer-halo.expanded {
 	height: 204dp;
 }
 
-.dominion-panel-outer-halo.dragging {
+.td-panel-outer-halo.dragging {
 	transition: height 0s, top 0s;
 }
 
-.dominion-dock-ghost {
+.td-dock-ghost {
 	position: absolute;
 	display: block;
 	width: 240dp;
@@ -61,26 +61,26 @@ body {
 	z-index: 998;
 }
 
-.dominion-dock-ghost.expanded {
+.td-dock-ghost.expanded {
 	height: 204dp;
 }
 
-.dominion-panel-outer-halo.origin {
+.td-panel-outer-halo.origin {
 	box-shadow: 0dp 0dp 9dp 2dp rgba(255, 255, 255, 155), 0dp 0dp 20dp 5dp rgba(255, 255, 255, 70);
 	opacity: 1;
 }
 
-.dominion-panel-outer-halo.first-place {
+.td-panel-outer-halo.first-place {
 	box-shadow: 0dp 0dp 9dp 2dp rgba(62, 235, 96, 145), 0dp 0dp 20dp 5dp rgba(42, 215, 78, 65);
 	opacity: 1;
 }
 
-.dominion-panel-outer-halo.danger {
+.td-panel-outer-halo.danger {
 	box-shadow: 0dp 0dp 10dp 2dp rgba(245, 45, 45, 165), 0dp 0dp 22dp 6dp rgba(225, 25, 25, 75);
-	animation: 2.4s cubic-in-out infinite dominion-danger-halo-pulse;
+	animation: 2.4s cubic-in-out infinite td-danger-halo-pulse;
 }
 
-.dominion-panel-texture {
+.td-panel-texture {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -93,7 +93,7 @@ body {
 	z-index: 0;
 }
 
-.dominion-panel-gradient {
+.td-panel-gradient {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -105,7 +105,7 @@ body {
 	z-index: 1;
 }
 
-.dominion-panel-shine {
+.td-panel-shine {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -118,7 +118,7 @@ body {
 	z-index: 2;
 }
 
-.dominion-panel-gloss {
+.td-panel-gloss {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -131,7 +131,7 @@ body {
 	z-index: 2;
 }
 
-.dominion-panel-top-edge {
+.td-panel-top-edge {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -144,7 +144,7 @@ body {
 	z-index: 2;
 }
 
-.dominion-panel-halo {
+.td-panel-halo {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -158,22 +158,22 @@ body {
 	z-index: 20;
 }
 
-.dominion-panel-halo.origin {
+.td-panel-halo.origin {
 	box-shadow: inset 0dp 0dp 14dp 3dp rgba(255, 255, 255, 105);
 	opacity: 1;
 }
 
-.dominion-panel-halo.first-place {
+.td-panel-halo.first-place {
 	box-shadow: inset 0dp 0dp 14dp 3dp rgba(62, 235, 96, 95);
 	opacity: 1;
 }
 
-.dominion-panel-halo.danger {
+.td-panel-halo.danger {
 	box-shadow: inset 0dp 0dp 15dp 3dp rgba(235, 35, 35, 115);
-	animation: 2.4s cubic-in-out infinite dominion-danger-halo-pulse;
+	animation: 2.4s cubic-in-out infinite td-danger-halo-pulse;
 }
 
-@keyframes dominion-danger-halo-pulse {
+@keyframes td-danger-halo-pulse {
 	0% {
 		opacity: 0.42;
 	}
@@ -185,7 +185,7 @@ body {
 	}
 }
 
-.dominion-distribution {
+.td-distribution {
 	position: absolute;
 	display: block;
 	left: 7dp;
@@ -203,11 +203,11 @@ body {
 	z-index: 3;
 }
 
-.dominion-distribution:hover {
+.td-distribution:hover {
 	border-color: rgba(255, 255, 255, 145);
 }
 
-.dominion-distribution-fill {
+.td-distribution-fill {
 	position: absolute;
 	display: flex;
 	flex-direction: row;
@@ -222,7 +222,7 @@ body {
 	pointer-events: none;
 }
 
-.dominion-distribution-segment {
+.td-distribution-segment {
 	position: relative;
 	display: block;
 	height: 100%;
@@ -232,7 +232,7 @@ body {
 	pointer-events: none;
 }
 
-.dominion-bar-gloss {
+.td-bar-gloss {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -244,7 +244,7 @@ body {
 	z-index: 5;
 }
 
-.dominion-horizontal-score {
+.td-horizontal-score {
 	position: absolute;
 	display: block;
 	left: 7dp;
@@ -261,7 +261,7 @@ body {
 	z-index: 3;
 }
 
-.dominion-horizontal-danger-outline {
+.td-horizontal-danger-outline {
 	position: absolute;
 	display: block;
 	left: 7dp;
@@ -274,11 +274,11 @@ body {
 	box-shadow: 0dp 0dp 6dp 1dp rgba(245, 45, 45, 170), 0dp 0dp 12dp 3dp rgba(225, 25, 25, 80);
 	pointer-events: none;
 	z-index: 4;
-	animation: 1.2s cubic-in-out infinite dominion-danger-halo-pulse;
+	animation: 1.2s cubic-in-out infinite td-danger-halo-pulse;
 }
 
-.dominion-horizontal-projected,
-.dominion-horizontal-actual {
+.td-horizontal-projected,
+.td-horizontal-actual {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -286,16 +286,16 @@ body {
 	height: 100%;
 }
 
-.dominion-horizontal-projected {
+.td-horizontal-projected {
 	z-index: 1;
 }
 
-.dominion-horizontal-actual {
+.td-horizontal-actual {
 	decorator: vertical-gradient(#FFFFFF55 #00000055);
 	z-index: 2;
 }
 
-.dominion-danger-overlay {
+.td-danger-overlay {
 	position: absolute;
 	display: block;
 	top: 0;
@@ -308,7 +308,7 @@ body {
 	opacity: 1;
 }
 
-.dominion-deadline-excess-backfill {
+.td-deadline-excess-backfill {
 	position: absolute;
 	display: block;
 	right: 0;
@@ -317,10 +317,10 @@ body {
 	decorator: vertical-gradient(#FFFFFF78 #FFFFFF30);
 	pointer-events: none;
 	z-index: 6;
-	animation: 1.8s cubic-in-out infinite dominion-deadline-excess-pulse;
+	animation: 1.8s cubic-in-out infinite td-deadline-excess-pulse;
 }
 
-@keyframes dominion-deadline-excess-pulse {
+@keyframes td-deadline-excess-pulse {
 	0% {
 		opacity: 0.63;
 	}
@@ -332,7 +332,7 @@ body {
 	}
 }
 
-.dominion-expanded-chart {
+.td-expanded-chart {
 	position: absolute;
 	display: block;
 	left: 7dp;
@@ -348,7 +348,7 @@ body {
 	z-index: 2;
 }
 
-.dominion-vertical-scroll {
+.td-vertical-scroll {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -361,18 +361,18 @@ body {
 	z-index: 2;
 }
 
-.dominion-vertical-scroll.overflowing {
+.td-vertical-scroll.overflowing {
 	overflow-x: auto;
 }
 
-.dominion-vertical-content {
+.td-vertical-content {
 	position: relative;
 	display: block;
 	height: 146dp;
 	box-sizing: border-box;
 }
 
-.dominion-vertical-slot {
+.td-vertical-slot {
 	position: absolute;
 	display: block;
 	top: 0;
@@ -382,11 +382,11 @@ body {
 	cursor: move;
 }
 
-.dominion-vertical-slot.eliminated {
+.td-vertical-slot.eliminated {
 	opacity: 0.38;
 }
 
-.dominion-vertical-rank {
+.td-vertical-rank {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -400,9 +400,9 @@ body {
 	font-effect: outline(1dp rgba(0, 0, 0, 220));
 }
 
-.dominion-vertical-track,
-.dominion-vertical-local-outline,
-.dominion-vertical-danger-outline {
+.td-vertical-track,
+.td-vertical-local-outline,
+.td-vertical-danger-outline {
 	position: absolute;
 	display: block;
 	left: 50%;
@@ -415,40 +415,40 @@ body {
 	transform: translateX(-50%);
 }
 
-.dominion-vertical-track {
+.td-vertical-track {
 	background-color: rgba(4, 5, 7, 168);
 	overflow: hidden;
 	clip: always;
 	cursor: default;
 }
 
-.dominion-vertical-track.local {
+.td-vertical-track.local {
 	border-color: transparent;
 }
 
-.dominion-vertical-local-outline {
+.td-vertical-local-outline {
 	pointer-events: none;
 	z-index: 5;
 }
 
-.dominion-vertical-danger-outline {
+.td-vertical-danger-outline {
 	pointer-events: none;
 	z-index: 6;
 	border-color: rgba(245, 45, 45, 230);
 	box-shadow: 0dp 0dp 6dp 1dp rgba(245, 45, 45, 170), 0dp 0dp 12dp 3dp rgba(225, 25, 25, 80);
-	animation: 1.2s cubic-in-out infinite dominion-danger-halo-pulse;
+	animation: 1.2s cubic-in-out infinite td-danger-halo-pulse;
 }
 
-.dominion-vertical-track:hover {
+.td-vertical-track:hover {
 	border-color: rgba(255, 255, 255, 170);
 }
 
-.dominion-vertical-track.local:hover ~ .dominion-vertical-local-outline {
+.td-vertical-track.local:hover ~ .td-vertical-local-outline {
 	display: none;
 }
 
-.dominion-vertical-projected,
-.dominion-vertical-actual {
+.td-vertical-projected,
+.td-vertical-actual {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -456,16 +456,16 @@ body {
 	width: 100%;
 }
 
-.dominion-vertical-projected {
+.td-vertical-projected {
 	z-index: 1;
 }
 
-.dominion-vertical-actual {
+.td-vertical-actual {
 	decorator: vertical-gradient(#FFFFFF55 #00000055);
 	z-index: 2;
 }
 
-.dominion-vertical-gloss {
+.td-vertical-gloss {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -477,7 +477,7 @@ body {
 	z-index: 3;
 }
 
-.dominion-vertical-danger-overlay {
+.td-vertical-danger-overlay {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -489,7 +489,7 @@ body {
 	opacity: 1;
 }
 
-.dominion-deadline-marker {
+.td-deadline-marker {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -500,7 +500,7 @@ body {
 	z-index: 6;
 }
 
-.dominion-deadline-hotspot {
+.td-deadline-hotspot {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -510,7 +510,7 @@ body {
 	pointer-events: auto;
 }
 
-.dominion-deadline-line {
+.td-deadline-line {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -522,7 +522,7 @@ body {
 	pointer-events: none;
 }
 
-.dominion-deadline-label {
+.td-deadline-label {
 	position: absolute;
 	display: block;
 	left: 2dp;
@@ -537,7 +537,7 @@ body {
 	pointer-events: auto;
 }
 
-.dominion-footer {
+.td-footer {
 	position: absolute;
 	display: flex;
 	left: 7dp;
@@ -551,13 +551,13 @@ body {
 	z-index: 3;
 }
 
-.dominion-panel.expanded .dominion-footer {
+.td-panel.expanded .td-footer {
 	top: 165dp;
 }
 
-.dominion-footer-score,
-.dominion-footer-countdown,
-.dominion-footer-target {
+.td-footer-score,
+.td-footer-countdown,
+.td-footer-target {
 	position: relative;
 	display: block;
 	height: 30dp;
@@ -570,77 +570,77 @@ body {
 	white-space: nowrap;
 }
 
-.dominion-footer-score {
+.td-footer-score {
 	width: 82dp;
 	padding-left: 23dp;
 	padding-top: 4dp;
 	text-align: left;
 }
 
-.dominion-footer-score .dominion-allyteam-color {
+.td-footer-score .td-allyteam-color {
 	position: absolute;
 	left: 5dp;
 	top: 8dp;
 }
 
-.dominion-footer-countdown {
+.td-footer-countdown {
 	width: 60dp;
 	text-align: center;
 	transform-origin: 50% 50%;
 }
 
-.dominion-footer-target {
+.td-footer-target {
 	width: 74dp;
 	padding-right: 5dp;
 	text-align: right;
 }
 
-.dominion-footer-target.deadline {
+.td-footer-target.deadline {
 	color: #ffffff;
 }
 
-.dominion-footer-icon {
+.td-footer-icon {
 	display: inline;
 	margin-right: 2dp;
 }
 
-.dominion-footer-countdown.warning {
+.td-footer-countdown.warning {
 	color: #ff4d4d;
 }
 
-.dominion-vertical-scroll scrollbarhorizontal {
+.td-vertical-scroll scrollbarhorizontal {
 	display: none;
 	height: 8.333dp;
 	margin-top: 1dp;
 	cursor: default;
 }
 
-.dominion-vertical-scroll.overflowing scrollbarhorizontal {
+.td-vertical-scroll.overflowing scrollbarhorizontal {
 	display: block;
 }
 
-.dominion-vertical-scroll scrollbarhorizontal slidertrack {
+.td-vertical-scroll scrollbarhorizontal slidertrack {
 	background-color: rgba(255, 255, 255, 12);
 	border-radius: 3dp;
 	cursor: default;
 }
 
-.dominion-vertical-scroll scrollbarhorizontal sliderbar {
+.td-vertical-scroll scrollbarhorizontal sliderbar {
 	min-width: 24dp;
 	background-color: rgba(255, 255, 255, 140);
 	border-radius: 3dp;
 	cursor: default;
 }
 
-.dominion-vertical-scroll scrollbarhorizontal sliderbar:hover {
+.td-vertical-scroll scrollbarhorizontal sliderbar:hover {
 	background-color: rgba(255, 255, 255, 255);
 }
 
-.dominion-vertical-scroll scrollbarhorizontal sliderbar:active {
+.td-vertical-scroll scrollbarhorizontal sliderbar:active {
 	background-color: rgba(255, 255, 255, 255);
 }
 
-.dominion-tooltip {
+.td-tooltip {
 	position: fixed;
 	display: block;
 	width: auto;
@@ -659,7 +659,7 @@ body {
 	box-shadow: 0dp 2dp 8dp 1dp rgba(0, 0, 0, 100);
 }
 
-.dominion-tooltip-texture {
+.td-tooltip-texture {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -673,7 +673,7 @@ body {
 	z-index: 0;
 }
 
-.dominion-tooltip-gradient {
+.td-tooltip-gradient {
 	position: absolute;
 	display: block;
 	left: 0;
@@ -686,46 +686,46 @@ body {
 	z-index: 1;
 }
 
-.dominion-tooltip-content {
+.td-tooltip-content {
 	position: relative;
 	display: block;
 	z-index: 3;
 }
 
-.dominion-tooltip-score {
+.td-tooltip-score {
 	display: block;
 }
 
-.dominion-tooltip-header {
+.td-tooltip-header {
 	display: block;
 	min-height: 22dp;
 	color: #ffffff;
 	white-space: nowrap;
 }
 
-.dominion-tooltip-title {
+.td-tooltip-title {
 	display: block;
 	min-height: 22dp;
 	margin-top: 4dp;
 	white-space: nowrap;
 }
 
-.dominion-tooltip-row,
-.dominion-tooltip-player {
+.td-tooltip-row,
+.td-tooltip-player {
 	display: block;
 	min-height: 22dp;
 	white-space: nowrap;
 }
 
-.dominion-tooltip-simple {
+.td-tooltip-simple {
 	display: block;
 	min-height: 22dp;
 	text-align: left;
 	white-space: nowrap;
 }
 
-.dominion-tooltip-leader-row,
-.dominion-tooltip-team-row {
+.td-tooltip-leader-row,
+.td-tooltip-team-row {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -733,22 +733,22 @@ body {
 	min-height: 22dp;
 }
 
-.dominion-tooltip-leader-row .dominion-tooltip-team-label {
+.td-tooltip-leader-row .td-tooltip-team-label {
 	margin-left: 6dp;
 }
 
-.dominion-tooltip-team-label {
+.td-tooltip-team-label {
 	display: block;
 	margin-right: 4dp;
 	flex-shrink: 0;
 }
 
-.dominion-tooltip-team-row .dominion-tooltip-team-label {
+.td-tooltip-team-row .td-tooltip-team-label {
 	color: rgba(205, 255, 205, 255);
 	font-size: 20dp;
 }
 
-.dominion-allyteam-color {
+.td-allyteam-color {
 	display: block;
 	box-sizing: border-box;
 	width: 14dp;
@@ -760,7 +760,7 @@ body {
 	border-radius: 14dp;
 }
 
-.dominion-popup {
+.td-popup {
 	position: fixed;
 	display: flex;
 	left: 0;
@@ -773,7 +773,7 @@ body {
 	z-index: 2500;
 }
 
-.dominion-popup-content {
+.td-popup-content {
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -787,10 +787,10 @@ body {
 	border-color: transparent;
 	border-radius: 0dp;
 	text-align: center;
-	animation: 0.28s cubic-out 1 dominion-popup-in;
+	animation: 0.28s cubic-out 1 td-popup-in;
 }
 
-@keyframes dominion-popup-in {
+@keyframes td-popup-in {
 	0% {
 		opacity: 0;
 		transform: translateY(-22dp) scale(0.96);
@@ -801,7 +801,7 @@ body {
 	}
 }
 
-.dominion-popup-title {
+.td-popup-title {
 	display: block;
 	color: #ffffff;
 	font-size: 54dp;
@@ -812,8 +812,8 @@ body {
 	text-align: center;
 }
 
-.dominion-popup-rate,
-.dominion-popup-deadline {
+.td-popup-rate,
+.td-popup-deadline {
 	display: block;
 	color: #ffffff;
 	font-size: 24dp;
@@ -823,6 +823,6 @@ body {
 	text-align: center;
 }
 
-.dominion-popup-rate {
+.td-popup-rate {
 	margin-bottom: 8dp;
 }

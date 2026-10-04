@@ -246,7 +246,6 @@ function gadget:AllowWeaponTarget(attackerID, targetID, attackerWeaponNum, attac
 end
 
 function gadget:Initialize()
-	gadgetHandler:RegisterUnitCommand(CMD_FIRE_STATE)
 	defThreatRanges, watchedWeaponsByUnitDef, neverHesitateAttackers, alwaysHarmlessUnitDefs =
 		WeaponThreat.buildDefendData()
 

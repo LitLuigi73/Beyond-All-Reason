@@ -47,7 +47,6 @@ function widget:PlayerChanged(playerID)
 end
 
 function widget:Initialize()
-	widgetHandler:RegisterUnitCommand(CMD_FIRE_STATE)
 	myTeam = spGetMyTeamID()
 	if Spring.IsReplay() or spGetGameFrame() > 0 then
 		maybeRemoveSelf()
