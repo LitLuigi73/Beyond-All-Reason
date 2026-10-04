@@ -1,8 +1,8 @@
 return {
 	armmlv = {
 		activatewhenbuilt = true,
-		--- builddistance = 160,
-		builddistance = 200,
+		-- builddistance = 96,
+		builddistance = 185,
 		builder = true,
 		buildpic = "ARMMLV.DDS",
 		buildtime = 3520,
@@ -38,6 +38,12 @@ return {
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 450,
 		speed = 75,
+		--transport stuff
+		transportcapacity = 1,
+		transportsize = 3,
+		transportunloadmethod = 0,
+		releaseheld = true,
+		----
 		stealth = true,
 		terraformspeed = 120,
 		trackoffset = 12,

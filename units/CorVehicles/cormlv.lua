@@ -1,8 +1,8 @@
 return {
 	cormlv = {
 		activatewhenbuilt = true,
-		--- builddistance = 160,
-		builddistance = 200,
+		--- builddistance = 96,
+		builddistance = 185,
 		builder = true,
 		buildpic = "CORMLV.DDS",
 		buildtime = 3640,
