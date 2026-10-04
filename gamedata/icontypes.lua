@@ -743,10 +743,6 @@ local icontypes = {
 		bitmap = "icons/armmlv_1.0.png",
 		size = 1.04999995,
 	},
-	armmlh = {
-		bitmap = "icons/armmlh_1.0.png",
-		size = 1.78499997,
-	},
 	armmmkr = {
 		bitmap = "icons/metalmaker_t2.png",
 		size = 1.20749986,
@@ -976,9 +972,10 @@ local icontypes = {
 		bitmap = "icons/air_los_sea.png",
 		size = 1.39649999,
 	},
+	--armthovr
 	armthovr = {
 		bitmap = "icons/hovertrans.png",
-		size = 1.78499997,
+		size = 1.78499997
 	},
 	armserp = {
 		bitmap = "icons/battlesub_t2.png",
@@ -1003,7 +1000,7 @@ local icontypes = {
 	--armtship
 	armtship = {
 		bitmap = "icons/shiptrans.png",
-		size = 2.0999999,
+		size = 2.0999999
 	},
 	armshltx = {
 		bitmap = "icons/factory_gantry.png",
@@ -1646,9 +1643,9 @@ local icontypes = {
 		size = 1.67999995,
 	},
 	--corintr
-	corintr = {
+		corintr = {
 		bitmap = "icons/corintr.png",
-		size = 2.0999999,
+		size = 2.0999999
 	},
 	legabm = {
 		bitmap = "icons/antinuke.png",
@@ -1926,10 +1923,6 @@ local icontypes = {
 		bitmap = "icons/cormlv_1.0.png",
 		size = 1.04999995,
 	},
-	cormlh = {
-		bitmap = "icons/cormlh_1.0.png",
-		size = 1.78499997,
-	},
 	cormmkr = {
 		bitmap = "icons/metalmaker_t2.png",
 		size = 1.20749986,
@@ -2118,9 +2111,10 @@ local icontypes = {
 		bitmap = "icons/aa_longrange_t2.png",
 		size = 1.88999987,
 	},
-	corthovr = {
+	--corthovr
+		corthovr = {
 		bitmap = "icons/hovertrans.png",
-		size = 1.78499997,
+		size = 1.78499997
 	},
 	corsd = {
 		bitmap = "icons/seismic.png",
@@ -2153,7 +2147,7 @@ local icontypes = {
 	--cortship
 	cortship = {
 		bitmap = "icons/shiptrans.png",
-		size = 2.0999999,
+		size = 2.0999999
 	},
 	corsiegebreaker = {
 		bitmap = "icons/vehicle_t2_tank_laser.png",
