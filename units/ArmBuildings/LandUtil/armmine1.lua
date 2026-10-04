@@ -7,7 +7,7 @@ return {
 		canguard = false,
 		canpatrol = false,
 		canrepeat = false,
-		cantbetransported = false,	
+		cantbetransported = false,
 		mass = 750,
 		cloakcost = 1,
 		collide = false,
