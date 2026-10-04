@@ -74,6 +74,7 @@ return {
 		customparams = {
 			canwearcosmetics = true,
 			decoyfor = "corcom",
+			mine_resistant = true,
 			firestateoncloak = 0,
 			isdecoycommander = true,
 			model_author = "Beherith",
