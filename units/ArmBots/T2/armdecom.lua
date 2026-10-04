@@ -74,7 +74,6 @@ return {
 		customparams = {
 			canwearcosmetics = true,
 			decoyfor = "armcom",
-			mine_resistant = true,
 			firestateoncloak = 0,
 			isdecoycommander = true,
 			model_author = "FireStorm",

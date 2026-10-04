@@ -743,10 +743,6 @@ local icontypes = {
 		bitmap = "icons/armmlv_1.0.png",
 		size = 1.04999995,
 	},
-	armmlh = {
-		bitmap = "icons/armmlh_1.0.png",
-		size = 1.78499997,
-	},
 	armmmkr = {
 		bitmap = "icons/metalmaker_t2.png",
 		size = 1.20749986,
@@ -976,9 +972,10 @@ local icontypes = {
 		bitmap = "icons/air_los_sea.png",
 		size = 1.39649999,
 	},
+	--armthovr
 	armthovr = {
 		bitmap = "icons/hovertrans.png",
-		size = 1.78499997,
+		size = 1.78499997
 	},
 	armserp = {
 		bitmap = "icons/battlesub_t2.png",
@@ -1003,7 +1000,7 @@ local icontypes = {
 	--armtship
 	armtship = {
 		bitmap = "icons/shiptrans.png",
-		size = 2.0999999,
+		size = 2.0999999
 	},
 	armshltx = {
 		bitmap = "icons/factory_gantry.png",
@@ -1646,9 +1643,9 @@ local icontypes = {
 		size = 1.67999995,
 	},
 	--corintr
-	corintr = {
+		corintr = {
 		bitmap = "icons/corintr.png",
-		size = 2.0999999,
+		size = 2.0999999
 	},
 	legabm = {
 		bitmap = "icons/antinuke.png",
@@ -1910,6 +1907,10 @@ local icontypes = {
 		bitmap = "icons/corbuzz.png",
 		size = 1.88999987,
 	},
+	corobligator = {
+		bitmap = "icons/corobligator.png",
+		size = 1.89999997,
+	},
 	cormist = {
 		bitmap = "icons/vehicle_t1_missile.png",
 		size = 1.04999995,
@@ -1921,10 +1922,6 @@ local icontypes = {
 	cormlv = {
 		bitmap = "icons/cormlv_1.0.png",
 		size = 1.04999995,
-	},
-	cormlh = {
-		bitmap = "icons/cormlh_1.0.png",
-		size = 1.78499997,
 	},
 	cormmkr = {
 		bitmap = "icons/metalmaker_t2.png",
@@ -2114,9 +2111,10 @@ local icontypes = {
 		bitmap = "icons/aa_longrange_t2.png",
 		size = 1.88999987,
 	},
-	corthovr = {
+	--corthovr
+		corthovr = {
 		bitmap = "icons/hovertrans.png",
-		size = 1.78499997,
+		size = 1.78499997
 	},
 	corsd = {
 		bitmap = "icons/seismic.png",
@@ -2149,7 +2147,7 @@ local icontypes = {
 	--cortship
 	cortship = {
 		bitmap = "icons/shiptrans.png",
-		size = 2.0999999,
+		size = 2.0999999
 	},
 	corsiegebreaker = {
 		bitmap = "icons/vehicle_t2_tank_laser.png",
@@ -2859,6 +2857,10 @@ local icontypes = {
 		bitmap = "icons/vehicle_t3_tank_mgun.png",
 		size = 2,
 	},
+	legapollyon = {
+		bitmap = "icons/vehicle_t3_tank_mgun.png",
+		size = 3,
+	},
 	leglht = {
 		bitmap = "icons/defence_0_laser.png",
 		size = 0.80000001,
@@ -2953,7 +2955,7 @@ local icontypes = {
 	},
 	legmrv = {
 		bitmap = "icons/vehicle_t2_raid.png",
-		size = 1.45000005,
+		size = 1.3000005,
 	},
 	legnap = {
 		bitmap = "icons/air_t2_bomber_napalm.png",
@@ -3021,11 +3023,11 @@ local icontypes = {
 	},
 	legshot = {
 		bitmap = "icons/bot_t2_impulse2x.png",
-		size = 1.60000002,
+		size = 1.35,
 	},
 	babylegshot = {
 		bitmap = "icons/kbot_t2_shotgun.png",
-		size = 1.60000002,
+		size = 1.0,
 	},
 	legsnapper = {
 		bitmap = "icons/corroach_0.9.png",
@@ -3700,6 +3702,26 @@ local icontypes = {
 		bitmap = "icons/raptor_tentacle2.png",
 		size = 5,
 	},
+	raptor_turret_acid_t4_v2 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5,
+	},
+	raptor_turret_brood_t2_v1 = {
+		bitmap = "icons/raptor_tentacle.png",
+		size = 2,
+	},
+	raptor_turret_brood_t3_v1 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 3,
+	},
+	raptor_turret_brood_t4_v1 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5,
+	},
+	raptor_turret_brood_t4_v2 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5,
+	},
 	raptor_turret_antiair_t2_v1 = {
 		bitmap = "icons/raptor_tentacle.png",
 		size = 2,
@@ -3732,6 +3754,10 @@ local icontypes = {
 		bitmap = "icons/raptor_tentacle2.png",
 		size = 5,
 	},
+	raptor_turret_basic_t4_v2 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5,
+	},
 	raptor_turret_emp_t2_v1 = {
 		bitmap = "icons/raptor_tentacle.png",
 		size = 2,
@@ -3741,6 +3767,10 @@ local icontypes = {
 		size = 3,
 	},
 	raptor_turret_emp_t4_v1 = {
+		bitmap = "icons/raptor_tentacle2.png",
+		size = 5,
+	},
+	raptor_turret_emp_t4_v2 = {
 		bitmap = "icons/raptor_tentacle2.png",
 		size = 5,
 	},
@@ -3989,13 +4019,53 @@ local icontypes = {
 	default = {
 		size = 1,
 		radiusadjust = 1,
+		drawOrder = 1, -- unidentified radar contacts are usually mobiles; keep them above structures
 	},
 }
+
+-- Assign each icontype a drawOrder for the engine's icon sorting (UnitIconsSorted
+-- config): structures (0) draw below ground units (1), air units (2) and commanders (3).
+-- Icontypes are named after their unit def, so classify by parsing the raw unit files;
+-- this parser runs engine-side without access to UnitDefs.
+local ORDER_STRUCTURE, ORDER_GROUND, ORDER_AIR, ORDER_COMMANDER = 0, 1, 2, 3
+
+local function isTrue(v)
+	return v == true or v == 1 or v == "true" or v == "1"
+end
+
+local function unitDrawOrder(def)
+	local cp = def.customparams or {}
+	if isTrue(def.canfly) then
+		return ORDER_AIR
+	elseif
+		isTrue(cp.iscommander)
+		or isTrue(cp.isdecoycommander)
+		or isTrue(cp.isscavcommander)
+		or isTrue(cp.isscavdecoycommander)
+	then
+		return ORDER_COMMANDER
+	elseif (tonumber(def.speed) or 0) == 0 then
+		return ORDER_STRUCTURE
+	end
+	return ORDER_GROUND
+end
+
+for _, file in ipairs(VFS.DirList("units/", "*.lua", nil, true)) do
+	local success, defs = pcall(VFS.Include, file)
+	if success and type(defs) == "table" then
+		for unitName, def in pairs(defs) do
+			local icontype = icontypes[unitName]
+			if icontype and type(def) == "table" and icontype.drawOrder == nil then
+				icontype.drawOrder = unitDrawOrder(def)
+			end
+		end
+	end
+end
 
 local newIcontypes = {}
 for name, params in pairs(icontypes) do
 	newIcontypes[name] = params
-	newIcontypes[name .. "_scav"] = { size = params.size or 1 }
+	newIcontypes[name .. "_scav"] = { size = params.size or 1, drawOrder = params.drawOrder }
 	if params.bitmap then
 		newIcontypes[name .. "_scav"].bitmap = params.bitmap:gsub("/", "/inverted/")
 	end
