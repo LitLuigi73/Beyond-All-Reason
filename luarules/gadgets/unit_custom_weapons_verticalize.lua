@@ -146,9 +146,7 @@ local function respawn(weapon, projectileID, projectile, upTimeFrames)
 	Spring.DeleteProjectile(projectileID)
 
 	inSpawnProjectile = true
-	GG.VerticalizeUptimeFrames = upTimeFrames
 	local respawnID = Spring.SpawnProjectile(weaponDefID, spawnParams)
-	GG.VerticalizeUptimeFrames = nil
 	inSpawnProjectile = false
 
 	if not respawnID then
@@ -278,8 +276,6 @@ function gadget:Initialize()
 		gadgetHandler:RemoveGadget()
 		return
 	end
-
-	GG.VerticalizeUptimeFrames = nil
 
 	for unitDefID, unitDef in ipairs(UnitDefs) do
 		for weaponNum, weapon in ipairs(unitDef.weapons) do
