@@ -180,6 +180,7 @@ return {
 		},
 		weapons = {
 			[1] = {
+				badtargetcategory = "AIR",
 				def = "COMMANDO_BLASTER",
 				onlytargetcategory = "NOTSUB",
 			},
