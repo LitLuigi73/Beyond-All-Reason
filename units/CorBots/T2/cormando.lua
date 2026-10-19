@@ -57,7 +57,7 @@ return {
 			fall_damage_multiplier = 0,
 			model_author = "FireStorm",
 			normaltex = "unittextures/cor_normal.dds",
-			paralyzemultiplier = 0.2,
+			paralyzemultiplier = 0.05,
 			paratrooper = true,
 			subfolder = "CorBots/T2",
 			techlevel = 2,
