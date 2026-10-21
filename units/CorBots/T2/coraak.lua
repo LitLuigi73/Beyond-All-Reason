@@ -174,6 +174,9 @@ return {
 				weapontimer = 5,
 				weapontype = "MissileLauncher",
 				weaponvelocity = 825,
+				customparams = {
+					speceffect = "retarget",
+				},
 				damage = {
 					vtol = 250,
 				},
@@ -183,6 +186,7 @@ return {
 			[1] = {
 				badtargetcategory = "LIGHTAIRSCOUT",
 				def = "CORAABOT_MISSILE1",
+				fastautoretargeting = true,
 				onlytargetcategory = "VTOL",
 			},
 			[2] = {

@@ -1,8 +1,7 @@
 return {
 	legmlv = {
 		activatewhenbuilt = true,
-		-- builddistance = 96,
-		builddistance = 200,
+		builddistance = 96,
 		builder = true,
 		buildpic = "legmlv.DDS",
 		buildtime = 3640,
@@ -21,9 +20,8 @@ return {
 		health = 210,
 		leavetracks = true,
 		mass = 740,
-		maxacc = 0.06681,
-		--- maxdec = 0.1327,
-		maxdec = 0.3981,
+		maxacc = 0.067,
+		maxdec = 0.4,
 		maxslope = 16,
 		maxwaterdepth = 0,
 		metalcost = 52,
@@ -36,12 +34,6 @@ return {
 		selfdestructas = "smallExplosionGenericSelfd",
 		sightdistance = 450,
 		speed = 69,
-		--transport stuff
-		transportcapacity = 1,
-		transportsize = 3,
-		transportunloadmethod = 0,
-		releaseheld = true,
-		----
 		stealth = true,
 		terraformspeed = 120,
 		trackoffset = 12,
