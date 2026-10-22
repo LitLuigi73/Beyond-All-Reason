@@ -3818,6 +3818,10 @@ local icontypes = {
 		bitmap = "icons/mine.png",
 		size = 0.55649996,
 	},
+	scavapparition = {
+		bitmap = "icons/blank.png",
+		size = 1.04999995,
+	},
 	scavmist = {
 		bitmap = "icons/blank.png",
 		size = 1.04999995,
