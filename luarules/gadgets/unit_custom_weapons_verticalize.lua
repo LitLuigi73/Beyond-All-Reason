@@ -247,9 +247,7 @@ function gadget:GameFrame(frame)
 end
 
 function gadget:ProjectileCreated(projectileID, ownerID, weaponDefID)
-	if weapons[weaponDefID] then
-		register(projectileID, weaponDefID)
-	end
+	register(projectileID, weaponDefID)
 end
 
 function gadget:ProjectileDestroyed(projectileID, ownerID, weaponDefID)
@@ -267,7 +265,7 @@ function gadget:Initialize()
 				Spring.Log(gadget:GetInfo().name, LOG.NOTICE, message)
 			end
 			weapons[weaponDefID] = weapon
-			Script.SetWatchProjectile(weaponDefID, true)
+			gadgetHandler:RegisterProjectile(weaponDefID)
 		end
 	end
 
