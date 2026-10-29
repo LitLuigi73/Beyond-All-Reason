@@ -186,6 +186,7 @@ return {
 	armanac = "armada_crocodile",
 	armch = "armada_constructionhovercraft",
 	armmh = "armada_possum",
+	armmlh = "armada_hoverminelayer",
 	armsh = "armada_seeker",
 	-- units/ArmSeaplanes
 	armcsa = "armada_constructionseaplane",
@@ -419,6 +420,7 @@ return {
 	corch = "cortex_constructionhovercraft",
 	corhal = "cortex_halberd",
 	cormh = "cortex_mangonel",
+	cormlh = "cortex_hoverminelayer",
 	corsh = "cortex_goon",
 	corsnap = "cortex_cayman",
 	-- units/CorSeaplanes
@@ -865,6 +867,7 @@ return {
 	armmmkrt3 = "armada_epicenergyconverter",
 	armwint2 = "armada_advancedwindturbine",
 	corafust3 = "cortex_epicfusionreactor",
+	corhltfus = "cortex_overlord",
 	cormmkrt3 = "cortex_epicenergyconverter",
 	corwint2 = "cortex_advancedwindturbine",
 	legadveconvt3 = "legion_epicenergyconverter",

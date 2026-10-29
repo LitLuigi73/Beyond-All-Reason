@@ -119,6 +119,7 @@ return {
 				noselfdamage = true,
 				range = 575,
 				reloadtime = 1.8,
+                rgbcolor = "0.2 0.6 0.2",
 				soundhit = "xplomed1",
 				soundhitwet = "splslrg",
 				soundstart = "largegun",
