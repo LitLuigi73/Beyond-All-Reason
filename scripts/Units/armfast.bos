@@ -1,6 +1,6 @@
 #include "../recoil_common_includes.h"
 
-piece  torso, flare, pelvis, rthigh, lthigh, lleg, rleg, rfoot, ruparm, luparm, lloarm, rloarm, lfoot, gun, head, aimx1, aimy1;
+piece  torso, flare1, flare2, emplight, pelvis, rthigh, lthigh, lleg, rleg, rfoot, ruparm, luparm, lloarm, rloarm, lfoot, gun, head, aimx1, aimy1;
 
 static-var  isMoving, isAiming, restore_delay, moveSpeed, currentSpeed, wpn1_lasthead, animSpeed, maxSpeed, animFramesPerKeyframe;
 
@@ -9,6 +9,7 @@ static-var  isMoving, isAiming, restore_delay, moveSpeed, currentSpeed, wpn1_las
 
 // Signal definitions
 #define SIGNAL_AIM1 256
+#define SIGNAL_AIM2 512
 #define SIGNAL_MOVE 1
 
 
@@ -392,12 +393,15 @@ Create()
 {
 	Weapon1TurretX = <500>;
 	Weapon1TurretY = <400>;
-	hide flare;
+	hide flare1;
+	hide emplight;
 	hide aimx1;
 	hide aimy1;
-	hide flare;
-	//turn flare to z-axis <-45.0> now;
-	turn flare to x-axis <90.0> now;
+	hide flare2;
+	//turn flare1 to z-axis <-45.0> now;
+	turn flare1 to x-axis <90.0> now;
+	turn flare2 to x-axis <90.0> now;
+	turn emplight to x-axis <90.0> now;
 	isMoving = FALSE;
 	isAiming = FALSE;
 	animSpeed = 4;
@@ -455,8 +459,19 @@ AimFromWeapon1(pieceIndex)
 
 QueryWeapon1(pieceIndex)
 {
-	pieceIndex = flare;
+	pieceIndex = flare1;
 }
+
+AimFromWeapon2(pieceIndex)
+{
+	pieceIndex = torso;
+}
+
+QueryWeapon2(pieceIndex)
+{
+	pieceIndex = flare2;
+}
+
 
 static-var aimoffset_while_kiting;
 AimWeapon1(heading, pitch)
@@ -491,17 +506,64 @@ AimWeapon1(heading, pitch)
 	return (1);
 }
 
+
+AimWeapon2(heading, pitch)
+{
+	signal SIGNAL_AIM2;
+	isAiming = TRUE;
+	turn ruparm to x-axis <0.0> speed <800>;
+	turn ruparm to y-axis <0.0> speed <800>;
+	turn ruparm to z-axis <0.0> speed <800>;
+	turn rloarm to x-axis <0.0> speed <400>;
+	turn rloarm to y-axis <0.0> speed <800>;
+	turn rloarm to z-axis <0.0> speed <400>;
+	
+	if (isMoving AND (heading < <-75> OR heading > <115>)) {
+		aimoffset_while_kiting = <14.5>; //Logic being: The further you try to aim beyond sideways bring in the offset to make the gun shoot straight
+	} else { 
+		aimoffset_while_kiting = <0>; 
+	}
+	
+	turn aimy1 to y-axis heading speed Weapon1TurretY;
+	turn aimx1 to x-axis <-90.0> + aimoffset_while_kiting - pitch speed Weapon1TurretX;
+	//turn ruparm to x-axis <90> - pitch speed <500>;
+
+	if ((wpn1_lasthead == 0xbadface) OR ABSOLUTE_GREATER_THAN(WRAPDELTA(heading - wpn1_lasthead), <19>))
+	{
+		wpn1_lasthead = 0xbadface;
+		wait-for-turn aimy1 around y-axis;
+		wait-for-turn aimx1 around x-axis;
+	}
+	wpn1_lasthead = heading;
+	start-script RestoreAfterDelay();
+	return (1);
+}
+
 FireWeapon1()
 {
-	emit-sfx 1024 + 0 from flare;
+	emit-sfx 1024 + 0 from flare1;
 	sleep 100;
-	emit-sfx 1024 + 0 from flare;
+	emit-sfx 1024 + 0 from flare1;
 	sleep 100;
-	emit-sfx 1024 + 0 from flare;
+	emit-sfx 1024 + 0 from flare1;
 	sleep 100;
-	emit-sfx 1024 + 0 from flare;
+	emit-sfx 1024 + 0 from flare1;
 	sleep 100;
-	emit-sfx 1024 + 0 from flare;
+	emit-sfx 1024 + 0 from flare1;
+}
+
+FireEmp()
+{
+	show emplight;
+	sleep 250;
+	hide emplight;
+}
+
+FireWeapon2()
+{
+	emit-sfx 1024 + 0 from flare2;
+	start-script FireEmp();
+	return (1);
 }
 
 // For C:\Users\ptasz\Documents\GitHub\support\Animation_sources\death_anims\armfast_anim_death.blend Created by https://github.com/Beherith/Skeletor_S3O V((0, 3, 9))

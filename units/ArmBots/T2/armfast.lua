@@ -133,7 +133,7 @@ return {
 					vtol = 4,
 				},
 			},
-            spider = {
+			spider = {
 				areaofeffect = 8,
 				avoidfeature = false,
 				beamdecay = 0.5,
@@ -154,15 +154,15 @@ return {
 				noselfdamage = true,
 				paralyzer = true,
 				paralyzetime = 9,
-				range = 280,
-				-- TASER RELOAD
-                reloadtime = 5,
+				range = 200,
+				-- TASER RELOAD STATS
+				reloadtime = 3.5,
 				rgbcolor = "0.7 0.7 1",
 				soundhitdry = "",
 				soundhitwet = "sizzle",
 				soundstart = "hackshot",
 				soundtrigger = 1,
-				thickness = 1.2,
+				thickness = 2.4,
 				turret = true,
 				weapontype = "BeamLaser",
 				weaponvelocity = 800,
@@ -178,10 +178,10 @@ return {
 				def = "ARM_FAST",
 				onlytargetcategory = "NOTSUB",
 			},
-            [2] = {
+			[2] = {
 				def = "SPIDER",
 				onlytargetcategory = "EMPABLE",
-                -- badtargetcategory = "VTOL",
+				-- badtargetcategory = "VTOL",
 			},
 		},
 	},
