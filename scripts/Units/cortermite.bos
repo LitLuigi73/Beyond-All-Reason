@@ -347,6 +347,7 @@ AimFromWeapon1(pieceIndex)
 		pieceIndex = flare2;
 		return (0);
 	}
+	return (0);
 }
 
 QueryWeapon1(pieceIndex)
@@ -362,6 +363,7 @@ QueryWeapon1(pieceIndex)
 		return (0);
 	}
 
+	return (0);
 }
 
 Killed(severity, corpsetype)
